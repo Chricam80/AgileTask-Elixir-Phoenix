@@ -1,0 +1,6 @@
+{
+  "name": "DevAgile & AgileStack DevOps Dashboard",
+  "description": "Interactive DevOps platform and microservices monitor integrating Spring Boot 3.2, Docker, Kubernetes, React/Angular client ecosystems, and empirical research benchmarks.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

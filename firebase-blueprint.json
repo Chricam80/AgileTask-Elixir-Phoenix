@@ -1,0 +1,69 @@
+{
+  "entities": {
+    "Microservice": {
+      "title": "Microservice",
+      "description": "Especificación de microservicio Docker orquestado en Kubernetes",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "maxLength": 100 },
+        "dockerImage": { "type": "string", "maxLength": 150 },
+        "imageSize": { "type": "string", "maxLength": 50 },
+        "port": { "type": "number" },
+        "protocol": { "type": "string", "maxLength": 20 },
+        "description": { "type": "string", "maxLength": 300 },
+        "frameworkSpec": { "type": "string", "maxLength": 100 },
+        "techDetail": { "type": "string", "maxLength": 150 },
+        "podsCount": { "type": "number" },
+        "cpuUsage": { "type": "number" },
+        "ramAllocMb": { "type": "number" },
+        "latencyP99Ms": { "type": "number" },
+        "status": { "type": "string", "maxLength": 50 }
+      },
+      "required": ["name", "dockerImage", "port", "description", "status"]
+    },
+    "KanbanTask": {
+      "title": "KanbanTask",
+      "description": "Historia técnica o tarea del tablero ágil de Sprint",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "maxLength": 150 },
+        "description": { "type": "string", "maxLength": 500 },
+        "category": { "type": "string", "enum": ["backend", "frontend", "devops"] },
+        "storyPoints": { "type": "number" },
+        "status": { "type": "string", "enum": ["col-todo", "col-progress", "col-review", "col-done"] },
+        "author": { "type": "string", "maxLength": 100 }
+      },
+      "required": ["title", "category", "storyPoints", "status"]
+    },
+    "MatrixItem": {
+      "title": "MatrixItem",
+      "description": "Item de la matriz de coherencia metodológica e impacto empírico",
+      "type": "object",
+      "properties": {
+        "code": { "type": "string", "maxLength": 20 },
+        "objective": { "type": "string", "maxLength": 300 },
+        "methodology": { "type": "string", "maxLength": 100 },
+        "methodologyIcon": { "type": "string", "maxLength": 50 },
+        "technology": { "type": "array" },
+        "outcome": { "type": "string", "maxLength": 500 },
+        "quantitativeImpact": { "type": "string", "maxLength": 100 },
+        "category": { "type": "string", "enum": ["metodologico", "arquitectura", "calidad"] }
+      },
+      "required": ["code", "objective", "methodology", "outcome", "quantitativeImpact", "category"]
+    }
+  },
+  "firestore": {
+    "/microservices/{serviceId}": {
+      "schema": { "$ref": "#/entities/Microservice" },
+      "description": "Catálogo de microservicios contenerizados y métricas de infraestructura"
+    },
+    "/kanban_tasks/{taskId}": {
+      "schema": { "$ref": "#/entities/KanbanTask" },
+      "description": "Historias de usuario y tareas técnicas del tablero Kanban"
+    },
+    "/matrix_items/{itemId}": {
+      "schema": { "$ref": "#/entities/MatrixItem" },
+      "description": "Objetivos y resultados empíricos de la investigación científica"
+    }
+  }
+}

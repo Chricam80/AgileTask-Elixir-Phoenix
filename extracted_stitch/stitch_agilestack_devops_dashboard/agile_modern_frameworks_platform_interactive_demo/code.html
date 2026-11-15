@@ -1,0 +1,1586 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Agile & Modern Frameworks Platform - Sandoval Vega Research</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              react: '#00d8ff',
+              angular: '#dd0031',
+              spring: '#6db33f',
+              dark: '#0f172a',
+              card: '#1e293b',
+              accent: '#f59e0b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    body {
+      font-family: 'Plus Jakarta Sans', sans-serif;
+    }
+    code, pre, .font-mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: rgba(30, 41, 59, 0.4);
+      border-radius: 4px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(100, 116, 139, 0.4);
+      border-radius: 4px;
+    }
+    .kanban-col {
+      min-height: 520px;
+    }
+    .dragging {
+      opacity: 0.4;
+      transform: scale(0.98);
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex antialiased selection:bg-indigo-500 selection:text-white transition-colors duration-200">
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="w-72 bg-slate-900/90 backdrop-blur-xl border-r border-slate-800 flex flex-col flex-shrink-0 z-20 transition-all">
+    <!-- Brand Header -->
+    <div class="p-5 border-b border-slate-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 via-emerald-500 to-sky-400 p-[2px] flex items-center justify-center shadow-lg shadow-indigo-500/20">
+          <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+            <i data-lucide="layers" class="w-5 h-5 text-emerald-400"></i>
+          </div>
+        </div>
+        <div>
+          <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-1.5">
+            DevAgile<span class="text-xs px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono font-medium border border-emerald-500/30">v3.2</span>
+          </h1>
+          <p class="text-[11px] text-slate-400 truncate max-w-[170px]" title="Investigación: C. C. Sandoval Vega">C. Sandoval Vega • Research</p>
+        </div>
+      </div>
+      <div class="mt-3 text-[11px] bg-slate-800/60 rounded-lg p-2 text-slate-400 border border-slate-700/50 leading-relaxed">
+        <span class="text-emerald-400 font-semibold">Tesis/Paper:</span> Metodologías Ágiles + Frameworks Modernos en Sistemas de Información.
+      </div>
+    </div>
+
+    <!-- Framework Switcher Control -->
+    <div class="px-4 py-3 border-b border-slate-800/80 bg-slate-950/40">
+      <label class="text-[10px] uppercase tracking-wider font-semibold text-slate-400 mb-1.5 block">Ecosistema Frontend Activo</label>
+      <div class="grid grid-cols-2 gap-1.5 bg-slate-900 p-1 rounded-lg border border-slate-800">
+        <button id="btn-react" onclick="switchFrontend('react')" class="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all bg-sky-500/20 text-sky-400 border border-sky-500/30 shadow-sm">
+          <i data-lucide="atom" class="w-3.5 h-3.5"></i>
+          <span>React 18</span>
+        </button>
+        <button id="btn-angular" onclick="switchFrontend('angular')" class="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all text-slate-400 hover:text-slate-200">
+          <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+          <span>Angular 17</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Navigation Menu Links -->
+    <nav class="flex-1 p-3 space-y-1.5 overflow-y-auto custom-scrollbar">
+      <div class="px-3 pt-2 pb-1 text-[10px] font-semibold text-slate-400 tracking-wider uppercase">Plataforma & Módulos</div>
+      
+      <button onclick="navigateTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all bg-indigo-600/20 text-indigo-300 border border-indigo-500/30">
+        <i data-lucide="layout-dashboard" class="w-4 h-4 text-indigo-400"></i>
+        <div class="text-left flex-1">
+          <div class="leading-tight">Dashboard General</div>
+          <span class="text-[10px] text-slate-400">Integración & Métricas</span>
+        </div>
+        <span class="w-1.5 h-1.5 rounded-full bg-indigo-400"></span>
+      </button>
+
+      <button onclick="navigateTab('agile')" id="nav-agile" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white">
+        <i data-lucide="kanban" class="w-4 h-4 text-amber-400"></i>
+        <div class="text-left flex-1">
+          <div class="leading-tight">Gestión Ágil</div>
+          <span class="text-[10px] text-slate-400">Scrum, Sprints & Kanban</span>
+        </div>
+      </button>
+
+      <button onclick="navigateTab('architecture')" id="nav-architecture" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white">
+        <i data-lucide="cpu" class="w-4 h-4 text-emerald-400"></i>
+        <div class="text-left flex-1">
+          <div class="leading-tight">Arquitectura & Tech</div>
+          <span class="text-[10px] text-slate-400">Spring Boot & Client UI</span>
+        </div>
+      </button>
+
+      <button onclick="navigateTab('matrix')" id="nav-matrix" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white">
+        <i data-lucide="table-properties" class="w-4 h-4 text-sky-400"></i>
+        <div class="text-left flex-1">
+          <div class="leading-tight">Matriz de Coherencia</div>
+          <span class="text-[10px] text-slate-400">Impacto e Investigación</span>
+        </div>
+      </button>
+
+      <div class="pt-4 px-3 pb-1 text-[10px] font-semibold text-slate-400 tracking-wider uppercase">Live Telemetry</div>
+      <div class="mx-2 p-2.5 rounded-lg bg-slate-950/70 border border-slate-800 text-[11px] space-y-2">
+        <div class="flex items-center justify-between text-slate-400">
+          <span class="flex items-center gap-1.5"><i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-400 animate-pulse"></i> Spring Boot API</span>
+          <span class="font-mono text-emerald-400 font-semibold">200 OK</span>
+        </div>
+        <div class="flex items-center justify-between text-slate-400">
+          <span class="flex items-center gap-1.5"><i data-lucide="zap" class="w-3.5 h-3.5 text-sky-400"></i> Active Sprint 14</span>
+          <span class="font-mono text-slate-300">Día 8 / 10</span>
+        </div>
+        <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+          <div class="bg-gradient-to-r from-emerald-500 to-indigo-500 h-1.5 rounded-full" style="width: 82%"></div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Bottom Footer Profile -->
+    <div class="p-3 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-indigo-600 flex items-center justify-center font-bold text-xs text-white shadow">
+          CS
+        </div>
+        <div class="text-left">
+          <div class="text-xs font-semibold text-slate-200">Christian Sandoval</div>
+          <div class="text-[10px] text-slate-400">Lead Tech / Autor</div>
+        </div>
+      </div>
+      <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors" title="Cambiar tema">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEWPORT -->
+  <main class="flex-1 flex flex-col min-h-screen overflow-x-hidden bg-slate-950">
+    
+    <!-- Top Header Bar -->
+    <header class="h-16 border-b border-slate-800 bg-slate-900/60 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-10">
+      <div class="flex items-center gap-3">
+        <h2 id="view-title" class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="layout-dashboard" class="w-5 h-5 text-indigo-400"></i>
+          Dashboard General de Integración
+        </h2>
+        <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> Entorno Operativo
+        </span>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="flex items-center gap-3">
+        <div class="hidden md:flex items-center gap-2 text-xs bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-300">
+          <span class="text-slate-400 font-medium">Stack Backend:</span>
+          <span class="flex items-center gap-1 text-emerald-400 font-mono font-semibold">
+            <i data-lucide="leaf" class="w-3.5 h-3.5"></i> Spring Boot 3.2
+          </span>
+          <span class="text-slate-600">|</span>
+          <span class="text-slate-400 font-medium">Frontend:</span>
+          <span id="header-framework-badge" class="font-mono text-sky-400 font-semibold flex items-center gap-1">
+            <i data-lucide="atom" class="w-3.5 h-3.5"></i> React SPA
+          </span>
+        </div>
+
+        <button onclick="openApiSimulatorModal()" class="flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 transition-all">
+          <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+          <span>Simular REST API</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT CONTAINERS -->
+    <div class="p-6 flex-1 space-y-6 max-w-7xl w-full mx-auto">
+      
+      <!-- ============================================== -->
+      <!-- SECTION 1: DASHBOARD GENERAL (VISTA INTEGRACIÓN) -->
+      <!-- ============================================== -->
+      <div id="section-dashboard" class="space-y-6">
+        
+        <!-- Context Banner -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 border border-indigo-500/20 p-6 shadow-xl">
+          <div class="absolute -right-8 -top-8 w-44 h-44 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute right-36 -bottom-10 w-44 h-44 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          
+          <div class="max-w-3xl">
+            <div class="inline-flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded-md mb-2">
+              <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Artículo de Investigación: Sandoval Vega (2024)
+            </div>
+            <h1 class="text-xl md:text-2xl font-black text-white tracking-tight leading-snug">
+              Impacto de las Metodologías Ágiles y Frameworks Modernos en Sistemas de Información
+            </h1>
+            <p class="text-xs md:text-sm text-slate-300 mt-2 leading-relaxed">
+              Demostración práctica de la sinergia entre la cadencia iterativa (Scrum/Kanban) y el desacoplamiento arquitectónico (Spring Boot REST Backend + React/Angular Frontend), maximizando la mantenibilidad, escalabilidad y respuesta ante cambios.
+            </p>
+          </div>
+        </div>
+
+        <!-- 4 Key Performance Indicators (KPIs) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- KPI 1 -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4.5 hover:border-slate-700 transition-all hover:translate-y-[-2px]">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-400">Eficiencia del Equipo</span>
+              <div class="p-2 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                <i data-lucide="trending-up" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="mt-3 flex items-baseline gap-2">
+              <span class="text-2xl font-bold text-white">88.4%</span>
+              <span class="text-xs font-semibold text-emerald-400 flex items-center">
+                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i> +34% vs Cascada
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">Lead time reducido de 42 a 11 días hábiles.</p>
+          </div>
+
+          <!-- KPI 2 -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4.5 hover:border-slate-700 transition-all hover:translate-y-[-2px]">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-400">Mantenibilidad Código</span>
+              <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="mt-3 flex items-baseline gap-2">
+              <span class="text-2xl font-bold text-white">A+ (92/100)</span>
+              <span class="text-xs font-semibold text-emerald-400 flex items-center">
+                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i> Deuda técnica &lt; 2h
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">Arquitectura hexagonal en Spring Boot + SPA limpia.</p>
+          </div>
+
+          <!-- KPI 3 -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4.5 hover:border-slate-700 transition-all hover:translate-y-[-2px]">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-400">Escalabilidad & Carga</span>
+              <div class="p-2 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                <i data-lucide="server" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="mt-3 flex items-baseline gap-2">
+              <span class="text-2xl font-bold text-white">12.5k req/s</span>
+              <span class="text-xs font-semibold text-sky-400 font-mono">
+                99.98% SLA
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">Spring WebFlux reactivo + CDN estático Frontend.</p>
+          </div>
+
+          <!-- KPI 4 -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4.5 hover:border-slate-700 transition-all hover:translate-y-[-2px]">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-400">Cobertura de Pruebas</span>
+              <div class="p-2 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="mt-3 flex items-baseline gap-2">
+              <span class="text-2xl font-bold text-white">87.2%</span>
+              <span class="text-xs font-semibold text-emerald-400 font-mono">
+                JUnit 5 + Jest
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">Automatización CI/CD con TDD y pipelines GitHub.</p>
+          </div>
+        </div>
+
+        <!-- Comparative Chart & Technology Integration Matrix -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          
+          <!-- Comparativa Antes vs Ahora (Estudio de Christian Sandoval) -->
+          <div class="lg:col-span-2 bg-slate-900/80 border border-slate-800 rounded-xl p-5 shadow-sm flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between mb-4">
+                <div>
+                  <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                    <i data-lucide="bar-chart-3" class="w-4 h-4 text-emerald-400"></i>
+                    Impacto Comparativo: Tradicional vs. Ágil + Frameworks Modernos
+                  </h3>
+                  <p class="text-xs text-slate-400">Métricas analizadas en la investigación empírica (Escala normalizada 0 - 100)</p>
+                </div>
+                <span class="text-[10px] font-mono bg-slate-800 text-slate-300 px-2 py-1 rounded border border-slate-700">Dataset Sandoval 2024</span>
+              </div>
+              <div class="h-64 w-full">
+                <canvas id="comparativeChart"></canvas>
+              </div>
+            </div>
+            <div class="mt-4 pt-3 border-t border-slate-800/80 grid grid-cols-3 gap-3 text-center">
+              <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
+                <div class="text-[10px] text-slate-400">Velocidad de Despliegue</div>
+                <div class="text-xs font-bold text-emerald-400 font-mono">+380% Más rápido</div>
+              </div>
+              <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
+                <div class="text-[10px] text-slate-400">Coste de Cambio tardío</div>
+                <div class="text-xs font-bold text-sky-400 font-mono">-65% Reducción</div>
+              </div>
+              <div class="bg-slate-950/60 p-2 rounded-lg border border-slate-800">
+                <div class="text-[10px] text-slate-400">Satisfacción del Cliente</div>
+                <div class="text-xs font-bold text-amber-400 font-mono">9.3 / 10 NPS</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Resumen del Stack Tecnológico -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2 mb-3">
+                <i data-lucide="box" class="w-4 h-4 text-indigo-400"></i>
+                Ecosistema Tecnológico Moderno
+              </h3>
+              <p class="text-xs text-slate-400 mb-4">Integración desacoplada frontend/backend recomendada en el artículo:</p>
+
+              <div class="space-y-3">
+                <!-- Backend Component -->
+                <div class="p-3 rounded-lg bg-emerald-950/30 border border-emerald-500/30">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-bold text-emerald-400 flex items-center gap-1.5">
+                      <i data-lucide="leaf" class="w-4 h-4"></i> Spring Boot Backend
+                    </span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">REST API</span>
+                  </div>
+                  <p class="text-[11px] text-slate-300">
+                    Java 21 LTS, Spring Security con JWT, Spring Data JPA / Hibernate, arquitectura de microservicios contenerizados con Docker.
+                  </p>
+                </div>
+
+                <!-- Frontend Component -->
+                <div id="stack-frontend-box" class="p-3 rounded-lg bg-sky-950/30 border border-sky-500/30 transition-all">
+                  <div class="flex items-center justify-between mb-1">
+                    <span id="stack-frontend-name" class="text-xs font-bold text-sky-400 flex items-center gap-1.5">
+                      <i data-lucide="atom" class="w-4 h-4"></i> React 18 SPA (Cliente)
+                    </span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-300 font-mono">Component Driven</span>
+                  </div>
+                  <p id="stack-frontend-desc" class="text-[11px] text-slate-300">
+                    Virtual DOM, Hooks para gestión de estado, React Query para consumo asíncrono y TailwindCSS para sistema de diseño atómico.
+                  </p>
+                </div>
+
+                <!-- Agile Driver -->
+                <div class="p-3 rounded-lg bg-amber-950/30 border border-amber-500/30">
+                  <div class="flex items-center justify-between mb-1">
+                    <span class="text-xs font-bold text-amber-400 flex items-center gap-1.5">
+                      <i data-lucide="refresh-cw" class="w-4 h-4"></i> Motor Metodológico
+                    </span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono">Scrum + Kanban</span>
+                  </div>
+                  <p class="text-[11px] text-slate-300">
+                    Sprints bi-semanales guiados por valor, límites WIP para evitar cuellos de botella y retrospectivas continuas orientadas a refactorización.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-800 flex justify-between items-center text-[11px] text-slate-400">
+              <span>Comunicación: JSON / HTTPS / TLS 1.3</span>
+              <span class="text-emerald-400 font-semibold flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Conectado
+              </span>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- ============================================== -->
+      <!-- SECTION 2: GESTIÓN ÁGIL (SCRUM & KANBAN) -->
+      <!-- ============================================== -->
+      <div id="section-agile" class="space-y-6 hidden">
+        
+        <!-- Sprint Controls & Velocity Summary Header -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">Sprint 14</span>
+              <span class="text-xs text-slate-400 font-mono">Fechas: 12 Mayo - 26 Mayo (En curso)</span>
+            </div>
+            <h3 class="text-base font-bold text-white">Objetivo: Integración de Autenticación JWT y Modularización de Vistas</h3>
+          </div>
+
+          <div class="flex items-center gap-4">
+            <!-- Progress Tracker -->
+            <div class="w-48 text-right">
+              <div class="flex justify-between text-xs text-slate-300 mb-1">
+                <span class="text-slate-400">Progreso Sprint</span>
+                <span class="font-mono font-bold text-emerald-400" id="sprint-percent-text">75% (30/40 pts)</span>
+              </div>
+              <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                <div id="sprint-progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 75%"></div>
+              </div>
+            </div>
+
+            <!-- Add Task Trigger Button -->
+            <button onclick="promptAddTask()" class="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white shadow transition-all">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              <span>Nueva Tarea</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Kanban Board with Drag & Drop Simulation -->
+        <div>
+          <div class="flex items-center justify-between mb-3">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 flex items-center gap-2">
+              <i data-lucide="trello" class="w-4 h-4 text-amber-400"></i> Tablero Kanban Dinámico (WIP Limits Activos)
+            </h4>
+            <span class="text-[11px] text-slate-400">Arrastra o pulsa flechas para mover tareas entre columnas</span>
+          </div>
+
+          <!-- The 4 Columns -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            
+            <!-- Columna: Por Hacer (To Do) -->
+            <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-col">
+              <div class="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                  <span class="text-xs font-bold text-slate-200 uppercase">Por Hacer</span>
+                </div>
+                <span id="badge-todo" class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400">1</span>
+              </div>
+              <div id="col-todo" class="kanban-col space-y-3 flex-1 custom-scrollbar" ondragover="allowDrop(event)" ondrop="drop(event, 'col-todo')">
+                
+                <!-- Task 1 -->
+                <div id="card-1" draggable="true" ondragstart="drag(event)" class="bg-slate-800/90 border border-slate-700/60 hover:border-indigo-500/50 rounded-lg p-3 shadow cursor-grab active:cursor-grabbing transition-all hover:translate-y-[-1px]">
+                  <div class="flex items-center justify-between gap-1 mb-2">
+                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30">Backend • Spring Boot</span>
+                    <span class="text-[10px] text-slate-400 font-mono">5 SP</span>
+                  </div>
+                  <h5 class="text-xs font-bold text-slate-100 leading-snug">Implementar Caching Redis para consultas pesadas</h5>
+                  <p class="text-[11px] text-slate-400 mt-1">Configurar @EnableCaching y fallback en Spring Boot 3 para optimizar endpoint /api/analytics.</p>
+                  <div class="mt-3 pt-2 border-t border-slate-700/50 flex items-center justify-between">
+                    <div class="flex items-center gap-1 text-[10px] text-slate-400">
+                      <i data-lucide="user" class="w-3 h-3 text-slate-400"></i> Dev Backend
+                    </div>
+                    <button onclick="moveTask('card-1', 'col-progress')" class="text-[10px] text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1">
+                      Mover <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Columna: En Progreso (In Progress) -->
+            <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-col">
+              <div class="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                  <span class="text-xs font-bold text-slate-200 uppercase">En Progreso</span>
+                </div>
+                <div class="flex items-center gap-1">
+                  <span class="text-[10px] text-slate-400 font-mono">WIP: 3</span>
+                  <span id="badge-progress" class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">1</span>
+                </div>
+              </div>
+              <div id="col-progress" class="kanban-col space-y-3 flex-1 custom-scrollbar" ondragover="allowDrop(event)" ondrop="drop(event, 'col-progress')">
+                
+                <!-- Task 2 -->
+                <div id="card-2" draggable="true" ondragstart="drag(event)" class="bg-slate-800/90 border border-slate-700/60 hover:border-sky-500/50 rounded-lg p-3 shadow cursor-grab active:cursor-grabbing transition-all hover:translate-y-[-1px]">
+                  <div class="flex items-center justify-between gap-1 mb-2">
+                    <span id="tag-card-2" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 font-semibold border border-sky-500/30">Frontend • React SPA</span>
+                    <span class="text-[10px] text-slate-400 font-mono">8 SP</span>
+                  </div>
+                  <h5 class="text-xs font-bold text-slate-100 leading-snug">Implementar UI de Dashboard con Gráficas Reactivas</h5>
+                  <p class="text-[11px] text-slate-400 mt-1">Conectar librería Chart.js consumiendo DTOs estructurados desde el controlador Spring Boot.</p>
+                  <div class="mt-3 pt-2 border-t border-slate-700/50 flex items-center justify-between">
+                    <button onclick="moveTask('card-2', 'col-todo')" class="text-[10px] text-slate-400 hover:text-slate-300 flex items-center gap-1">
+                      <i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás
+                    </button>
+                    <button onclick="moveTask('card-2', 'col-review')" class="text-[10px] text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1">
+                      Review <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Columna: En Code Review (Review) -->
+            <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-col">
+              <div class="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
+                  <span class="text-xs font-bold text-slate-200 uppercase">En Code Review</span>
+                </div>
+                <span id="badge-review" class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">1</span>
+              </div>
+              <div id="col-review" class="kanban-col space-y-3 flex-1 custom-scrollbar" ondragover="allowDrop(event)" ondrop="drop(event, 'col-review')">
+                
+                <!-- Task 3 -->
+                <div id="card-3" draggable="true" ondragstart="drag(event)" class="bg-slate-800/90 border border-slate-700/60 hover:border-purple-500/50 rounded-lg p-3 shadow cursor-grab active:cursor-grabbing transition-all hover:translate-y-[-1px]">
+                  <div class="flex items-center justify-between gap-1 mb-2">
+                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30">Backend • Spring Security</span>
+                    <span class="text-[10px] text-slate-400 font-mono">5 SP</span>
+                  </div>
+                  <h5 class="text-xs font-bold text-slate-100 leading-snug">Refactorizar Filtro de Validación JWT con Token Expiry</h5>
+                  <p class="text-[11px] text-slate-400 mt-1">PR #42: Migración a SecurityFilterChain moderno eliminando WebSecurityConfigurerAdapter obsoleto.</p>
+                  <div class="mt-3 pt-2 border-t border-slate-700/50 flex items-center justify-between">
+                    <button onclick="moveTask('card-3', 'col-progress')" class="text-[10px] text-slate-400 hover:text-slate-300 flex items-center gap-1">
+                      <i data-lucide="arrow-left" class="w-3 h-3"></i> Progreso
+                    </button>
+                    <button onclick="moveTask('card-3', 'col-done')" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1">
+                      Aprobar <i data-lucide="check" class="w-3 h-3"></i>
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+            <!-- Columna: Completado (Done) -->
+            <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-col">
+              <div class="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                  <span class="text-xs font-bold text-slate-200 uppercase">Completado</span>
+                </div>
+                <span id="badge-done" class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">2</span>
+              </div>
+              <div id="col-done" class="kanban-col space-y-3 flex-1 custom-scrollbar" ondragover="allowDrop(event)" ondrop="drop(event, 'col-done')">
+                
+                <!-- Task 4 -->
+                <div id="card-4" draggable="true" ondragstart="drag(event)" class="bg-slate-800/90 border border-slate-700/60 rounded-lg p-3 shadow opacity-85 hover:opacity-100 transition-all">
+                  <div class="flex items-center justify-between gap-1 mb-2">
+                    <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-semibold border border-purple-500/30">DevOps • CI/CD</span>
+                    <span class="text-[10px] text-emerald-400 font-mono flex items-center"><i data-lucide="check" class="w-3 h-3"></i> Done</span>
+                  </div>
+                  <h5 class="text-xs font-bold text-slate-100 line-through text-slate-300 leading-snug">Pipeline GitHub Actions para build automatizado</h5>
+                  <p class="text-[11px] text-slate-400 mt-1">Test unitarios JUnit y build de imagen Docker optimizada con Alpine Linux.</p>
+                  <div class="mt-3 pt-2 border-t border-slate-700/50 flex items-center justify-between text-[10px] text-slate-400">
+                    <span>Story Points: 3</span>
+                    <button onclick="moveTask('card-4', 'col-review')" class="text-slate-400 hover:text-slate-200">Reabrir</button>
+                  </div>
+                </div>
+
+                <!-- Task 5 -->
+                <div id="card-5" draggable="true" ondragstart="drag(event)" class="bg-slate-800/90 border border-slate-700/60 rounded-lg p-3 shadow opacity-85 hover:opacity-100 transition-all">
+                  <div class="flex items-center justify-between gap-1 mb-2">
+                    <span id="tag-card-5" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 font-semibold border border-sky-500/30">Frontend • Routing</span>
+                    <span class="text-[10px] text-emerald-400 font-mono flex items-center"><i data-lucide="check" class="w-3 h-3"></i> Done</span>
+                  </div>
+                  <h5 class="text-xs font-bold text-slate-100 line-through text-slate-300 leading-snug">Estructurar Rutas Protegidas e Interceptores HTTP</h5>
+                  <p class="text-[11px] text-slate-400 mt-1">Inyección de Bearer Token en encabezados HTTP para todas las llamadas API seguras.</p>
+                  <div class="mt-3 pt-2 border-t border-slate-700/50 flex items-center justify-between text-[10px] text-slate-400">
+                    <span>Story Points: 5</span>
+                    <button onclick="moveTask('card-5', 'col-review')" class="text-slate-400 hover:text-slate-200">Reabrir</button>
+                  </div>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Scrum Velocity & Burndown Insights -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-2">
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-5">
+            <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+              <i data-lucide="line-chart" class="w-4 h-4 text-emerald-400"></i> Velocity Chart (Estabilidad del Equipo en 5 Sprints)
+            </h4>
+            <div class="h-48 w-full">
+              <canvas id="velocityChart"></canvas>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-2">La estabilidad técnica de Spring Boot y componentes Frontend incrementó la velocidad constante a ~38 puntos.</p>
+          </div>
+
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+            <div>
+              <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-3 flex items-center gap-2">
+                <i data-lucide="check-square" class="w-4 h-4 text-indigo-400"></i> Backlog Priorizado (Historias Técnicas)
+              </h4>
+              <div class="space-y-2 text-xs">
+                <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-red-400"></span>
+                    <span class="text-slate-200 font-medium">AUDIT-01: Auditoría de accesibilidad WCAG 2.1 en cliente</span>
+                  </div>
+                  <span class="font-mono text-slate-400 text-[10px]">Alta • 5 SP</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                    <span class="text-slate-200 font-medium">API-09: Migración a DTOs Records en Java 21 para inmutabilidad</span>
+                  </div>
+                  <span class="font-mono text-slate-400 text-[10px]">Media • 3 SP</span>
+                </div>
+                <div class="p-2.5 rounded-lg bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+                  <div class="flex items-center gap-2">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                    <span class="text-slate-200 font-medium">E2E-04: Suite de pruebas Cypress / Playwright automatizadas</span>
+                  </div>
+                  <span class="font-mono text-slate-400 text-[10px]">Normal • 8 SP</span>
+                </div>
+              </div>
+            </div>
+            <div class="mt-3 pt-3 border-t border-slate-800 text-[11px] text-slate-400 flex items-center justify-between">
+              <span>Total Backlog estimado: 64 Story Points</span>
+              <span class="text-indigo-400 hover:underline cursor-pointer">Ver Product Backlog completo</span>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============================================== -->
+      <!-- SECTION 3: ARQUITECTURA & FRAMEWORKS (TECH) -->
+      <!-- ============================================== -->
+      <div id="section-architecture" class="space-y-6 hidden">
+        
+        <!-- Architecture Concept Banner -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono text-xs border border-emerald-500/30">Backend Spring Boot</span>
+              <span class="text-slate-500">&harr;</span>
+              <span id="arch-active-frontend-badge" class="px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 font-mono text-xs border border-sky-500/30">Frontend React Client</span>
+            </div>
+            <h3 class="text-base font-bold text-white">Desacoplamiento Estructural & Contrato REST API</h3>
+            <p class="text-xs text-slate-400 mt-1">El backend expone recursos REST stateless; el frontend gestiona el árbol reactivo de interfaz.</p>
+          </div>
+
+          <!-- Live Playground Button -->
+          <button onclick="openApiSimulatorModal()" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition-all">
+            <i data-lucide="terminal" class="w-4 h-4"></i>
+            <span>Lanzar Consola de Prueba REST</span>
+          </button>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          
+          <!-- LADO BACKEND: SPRING BOOT -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                  <div class="w-7 h-7 rounded-lg bg-emerald-500/20 border border-emerald-500/30 flex items-center justify-center text-emerald-400">
+                    <i data-lucide="leaf" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h4 class="text-sm font-bold text-white">Servicios Backend (Spring Boot 3)</h4>
+                    <span class="text-[10px] text-slate-400 font-mono">Port: 8080 • Actuator Health: UP</span>
+                  </div>
+                </div>
+                <span class="text-[10px] px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30">
+                  Microservicios
+                </span>
+              </div>
+
+              <!-- Endpoint List Table -->
+              <div class="space-y-2.5">
+                <div class="p-3 rounded-lg bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 font-bold">GET</span>
+                    <div>
+                      <div class="text-xs font-mono text-slate-200">/api/v1/proyectos/metricas</div>
+                      <div class="text-[10px] text-slate-400">Resumen KPIs ágiles en JSON</div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-xs font-mono text-emerald-400">200 OK</span>
+                    <div class="text-[10px] text-slate-500 font-mono">18ms</div>
+                  </div>
+                </div>
+
+                <div class="p-3 rounded-lg bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">POST</span>
+                    <div>
+                      <div class="text-xs font-mono text-slate-200">/api/v1/auth/login</div>
+                      <div class="text-[10px] text-slate-400">Autenticación & firma JWT Bearer</div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-xs font-mono text-emerald-400">200 OK</span>
+                    <div class="text-[10px] text-slate-500 font-mono">42ms</div>
+                  </div>
+                </div>
+
+                <div class="p-3 rounded-lg bg-slate-950/70 border border-slate-800 flex items-center justify-between">
+                  <div class="flex items-center gap-2.5">
+                    <span class="text-[10px] font-mono px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold">PUT</span>
+                    <div>
+                      <div class="text-xs font-mono text-slate-200">/api/v1/kanban/tareas/{id}</div>
+                      <div class="text-[10px] text-slate-400">Transición de estado y columna</div>
+                    </div>
+                  </div>
+                  <div class="text-right">
+                    <span class="text-xs font-mono text-emerald-400">200 OK</span>
+                    <div class="text-[10px] text-slate-500 font-mono">24ms</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Security & Framework Capabilities -->
+              <div class="mt-4 p-3 bg-slate-950/50 rounded-lg border border-slate-800/80 text-[11px] text-slate-400 space-y-1.5">
+                <div class="text-slate-300 font-semibold flex items-center gap-1.5">
+                  <i data-lucide="shield" class="w-3.5 h-3.5 text-emerald-400"></i> Capa de Seguridad (Spring Security 6):
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-[10px] pt-1 font-mono">
+                  <div class="bg-slate-900 p-1.5 rounded text-slate-300">CORS Policy: Whitelist SPA</div>
+                  <div class="bg-slate-900 p-1.5 rounded text-slate-300">CSRF: Stateless Token</div>
+                  <div class="bg-slate-900 p-1.5 rounded text-slate-300">Auth: Stateless JWT Filter</div>
+                  <div class="bg-slate-900 p-1.5 rounded text-slate-300">ORM: Spring Data + Hibernate</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+              <span class="text-slate-400">JVM Heap: 284 MB / 1024 MB</span>
+              <span class="font-mono text-emerald-400">Thread Pool: Healthy</span>
+            </div>
+          </div>
+
+          <!-- LADO FRONTEND: REACT / ANGULAR -->
+          <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 flex flex-col justify-between">
+            <div>
+              <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+                <div class="flex items-center gap-2">
+                  <div id="frontend-avatar" class="w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400">
+                    <i data-lucide="atom" class="w-4 h-4"></i>
+                  </div>
+                  <div>
+                    <h4 id="frontend-view-title" class="text-sm font-bold text-white">Arquitectura Frontend (React 18 SPA)</h4>
+                    <span id="frontend-view-sub" class="text-[10px] text-slate-400 font-mono">Virtual DOM • React Query Client</span>
+                  </div>
+                </div>
+                <span id="frontend-view-pill" class="text-[10px] px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-400 font-semibold border border-sky-500/30">
+                  Client Side
+                </span>
+              </div>
+
+              <!-- Component Tree View -->
+              <div class="p-3 bg-slate-950/80 rounded-lg border border-slate-800 font-mono text-xs text-slate-300 space-y-1.5">
+                <div class="text-slate-400 font-semibold text-[10px] uppercase font-sans pb-1 border-b border-slate-800">
+                  Jerarquía de Componentes Reutilizables
+                </div>
+                <div class="flex items-center gap-2 text-indigo-400">
+                  <i data-lucide="folder" class="w-3.5 h-3.5"></i>
+                  <span>&lt;AppLayout&gt;</span>
+                </div>
+                <div class="flex items-center gap-2 text-slate-300 pl-4">
+                  <span class="text-slate-600">&boxur;</span>
+                  <span>&lt;NavigationSidebar /&gt;</span>
+                </div>
+                <div class="flex items-center gap-2 text-slate-300 pl-4">
+                  <span class="text-slate-600">&boxur;</span>
+                  <span class="text-amber-300">&lt;KanbanBoardProvider&gt;</span>
+                </div>
+                <div class="flex items-center gap-2 text-slate-300 pl-8">
+                  <span class="text-slate-600">&boxur;</span>
+                  <span>&lt;KanbanColumn status="WIP" /&gt;</span>
+                </div>
+                <div class="flex items-center gap-2 text-slate-300 pl-12">
+                  <span class="text-slate-600">&boxur;</span>
+                  <span class="text-emerald-300">&lt;TaskCard id={task.id} /&gt;</span>
+                </div>
+                <div class="flex items-center gap-2 text-slate-300 pl-4">
+                  <span class="text-slate-600">&boxur;</span>
+                  <span>&lt;MetricsChart telemetry={data} /&gt;</span>
+                </div>
+              </div>
+
+              <!-- Framework Technical Comparison Insights -->
+              <div id="frontend-tech-details" class="mt-4 p-3 bg-slate-950/50 rounded-lg border border-slate-800/80 text-[11px] text-slate-300 space-y-1.5">
+                <div class="text-sky-400 font-semibold flex items-center gap-1.5">
+                  <i data-lucide="cpu" class="w-3.5 h-3.5"></i> Beneficios según artículo Sandoval Vega:
+                </div>
+                <p class="text-slate-400 leading-relaxed text-[11px]">
+                  React proporciona flexibilidad basada en funciones puras y custom hooks, optimizando la renderización selectiva mediante Reconciliación y Virtual DOM, resultando en alta reactividad para paneles de analítica ágil.
+                </p>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-800 flex items-center justify-between text-xs">
+              <span class="text-slate-400">Bundle Size (Gzipped): 142 KB</span>
+              <span class="font-mono text-emerald-400">Lighthouse Performance: 98/100</span>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Flow Visualizer: Agile & Modern Tech Coupling -->
+        <div class="bg-slate-900/70 border border-slate-800 rounded-xl p-5">
+          <h4 class="text-xs font-bold uppercase tracking-wider text-slate-400 mb-4 flex items-center gap-2">
+            <i data-lucide="workflow" class="w-4 h-4 text-amber-400"></i> Cadena de Valor: De la Historia de Usuario al Despliegue en Producción
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 relative">
+              <span class="text-[10px] font-mono text-amber-400 font-bold">FASE 1 • ÁGIL</span>
+              <h5 class="text-xs font-bold text-white mt-1">Refinamiento de Historias</h5>
+              <p class="text-[11px] text-slate-400 mt-1">Definición de criterios de aceptación y asignación en Sprint Backlog.</p>
+            </div>
+            <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 relative">
+              <span class="text-[10px] font-mono text-sky-400 font-bold">FASE 2 • FRONTEND</span>
+              <h5 class="text-xs font-bold text-white mt-1">Componentes Atómicos</h5>
+              <p class="text-[11px] text-slate-400 mt-1">Desarrollo de interfaces con React/Angular consumiendo mocks tipados.</p>
+            </div>
+            <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 relative">
+              <span class="text-[10px] font-mono text-emerald-400 font-bold">FASE 3 • BACKEND</span>
+              <h5 class="text-xs font-bold text-white mt-1">Lógica en Spring Boot</h5>
+              <p class="text-[11px] text-slate-400 mt-1">Construcción de Controllers REST, Servicios transaccionales y Repositorios JPA.</p>
+            </div>
+            <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 relative">
+              <span class="text-[10px] font-mono text-purple-400 font-bold">FASE 4 • DEVOPS</span>
+              <h5 class="text-xs font-bold text-white mt-1">Entrega Continua (CI/CD)</h5>
+              <p class="text-[11px] text-slate-400 mt-1">Pruebas unitarias automáticas, empaquetado Docker y deploy a la nube.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============================================== -->
+      <!-- SECTION 4: MATRIZ DE COHERENCIA E IMPACTO -->
+      <!-- ============================================== -->
+      <div id="section-matrix" class="space-y-6 hidden">
+        
+        <!-- Header & Methodology context -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 font-mono text-xs border border-indigo-500/30">Documentación de Investigación</span>
+            <h3 class="text-base font-bold text-white mt-1">Matriz de Coherencia Metodológica & Resultados</h3>
+            <p class="text-xs text-slate-400">Correspondencia entre objetivos formulados por Christian Sandoval Vega y evidencias empíricas obtenidas.</p>
+          </div>
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-mono bg-slate-950 border border-slate-800 text-slate-300 px-3 py-1.5 rounded-lg">
+              4 Objetivos Específicos Evaluados
+            </span>
+          </div>
+        </div>
+
+        <!-- Dynamic Filter / Search Bar -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900/60 p-3 rounded-xl border border-slate-800">
+          <div class="relative w-full sm:w-80">
+            <i data-lucide="search" class="w-4 h-4 text-slate-400 absolute left-3 top-2.5"></i>
+            <input id="matrix-search" oninput="filterMatrixTable()" type="text" placeholder="Buscar por objetivo, framework o impacto..." class="w-full bg-slate-950 border border-slate-800 text-xs rounded-lg pl-9 pr-3 py-2 text-slate-200 placeholder-slate-500 focus:outline-none focus:border-indigo-500">
+          </div>
+          <div class="flex items-center gap-2 w-full sm:w-auto">
+            <span class="text-xs text-slate-400">Filtrar por nivel:</span>
+            <select id="matrix-filter" onchange="filterMatrixTable()" class="bg-slate-950 border border-slate-800 text-xs rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-indigo-500">
+              <option value="all">Todos los Niveles</option>
+              <option value="metodologico">Metodológico (Ágil)</option>
+              <option value="arquitectura">Arquitectura Técnica</option>
+              <option value="calidad">Calidad y Desempeño</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Interactive Data Table -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-950/80 border-b border-slate-800 text-slate-400 uppercase font-mono text-[10px] tracking-wider">
+                  <th class="p-3.5 pl-5">Obj. Específico</th>
+                  <th class="p-3.5">Metodología / Práctica</th>
+                  <th class="p-3.5">Tecnología / Framework</th>
+                  <th class="p-3.5">Resultado Alcanzado</th>
+                  <th class="p-3.5 pr-5">Impacto Cuantitativo</th>
+                </tr>
+              </thead>
+              <tbody id="matrix-tbody" class="divide-y divide-slate-800/80 text-slate-300">
+                
+                <tr class="matrix-row hover:bg-slate-800/40 transition-colors" data-category="metodologico">
+                  <td class="p-3.5 pl-5 font-semibold text-white">
+                    <span class="text-indigo-400 font-mono mr-1">OE-01:</span>
+                    Diagnosticar la tasa de entrega continua y respuesta ante cambios en el ciclo de vida.
+                  </td>
+                  <td class="p-3.5">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono text-[10px]">
+                      <i data-lucide="refresh-cw" class="w-3 h-3"></i> Scrum (Sprints bisemanales)
+                    </span>
+                  </td>
+                  <td class="p-3.5">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 text-slate-200 border border-slate-700 font-mono text-[10px]">
+                      Jira / Git Flow
+                    </span>
+                  </td>
+                  <td class="p-3.5 text-slate-300">
+                    Eliminación de la fase monolítica de especificación. Ajustes de alcance incorporados en cada review de sprint.
+                  </td>
+                  <td class="p-3.5 pr-5">
+                    <span class="font-mono text-emerald-400 font-bold bg-emerald-950/60 px-2 py-1 rounded border border-emerald-500/30 text-[11px]">
+                      -72% Tiempo de Adaptación
+                    </span>
+                  </td>
+                </tr>
+
+                <tr class="matrix-row hover:bg-slate-800/40 transition-colors" data-category="arquitectura">
+                  <td class="p-3.5 pl-5 font-semibold text-white">
+                    <span class="text-indigo-400 font-mono mr-1">OE-02:</span>
+                    Diseñar e integrar una arquitectura desacoplada para sistemas de información de alto flujo.
+                  </td>
+                  <td class="p-3.5">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono text-[10px]">
+                      <i data-lucide="columns" class="w-3 h-3"></i> Kanban WIP Limits
+                    </span>
+                  </td>
+                  <td class="p-3.5">
+                    <div class="flex flex-col gap-1">
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-mono text-[10px]">
+                        <i data-lucide="leaf" class="w-3 h-3"></i> Spring Boot REST
+                      </span>
+                      <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-sky-500/10 text-sky-300 border border-sky-500/20 font-mono text-[10px]">
+                        <i data-lucide="atom" class="w-3 h-3"></i> React / Angular Client
+                      </span>
+                    </div>
+                  </td>
+                  <td class="p-3.5 text-slate-300">
+                    Aislamiento de la lógica de negocio; backend stateless con seguridad centralizada y cliente reactivo optimizado.
+                  </td>
+                  <td class="p-3.5 pr-5">
+                    <span class="font-mono text-emerald-400 font-bold bg-emerald-950/60 px-2 py-1 rounded border border-emerald-500/30 text-[11px]">
+                      99.98% Disponibilidad
+                    </span>
+                  </td>
+                </tr>
+
+                <tr class="matrix-row hover:bg-slate-800/40 transition-colors" data-category="calidad">
+                  <td class="p-3.5 pl-5 font-semibold text-white">
+                    <span class="text-indigo-400 font-mono mr-1">OE-03:</span>
+                    Evaluar la mantenibilidad del código fuente y disminución de deuda técnica acumulada.
+                  </td>
+                  <td class="p-3.5">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/20 font-mono text-[10px]">
+                      <i data-lucide="code" class="w-3 h-3"></i> TDD + Pair Programming
+                    </span>
+                  </td>
+                  <td class="p-3.5">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-slate-800 text-slate-200 border border-slate-700 font-mono text-[10px]">
+                      SonarQube + JUnit 5
+                    </span>
+                  </td>
+                  <td class="p-3.5 text-slate-300">
+                    Estructuración modular basada en patrones DDD (Domain Driven Design) e inyección de dependencias en Spring.
+                  </td>
+                  <td class="p-3.5 pr-5">
+                    <span class="font-mono text-emerald-400 font-bold bg-emerald-950/60 px-2 py-1 rounded border border-emerald-500/30 text-[11px]">
+                      Calificación A+ SonarQube
+                    </span>
+                  </td>
+                </tr>
+
+                <tr class="matrix-row hover:bg-slate-800/40 transition-colors" data-category="calidad">
+                  <td class="p-3.5 pl-5 font-semibold text-white">
+                    <span class="text-indigo-400 font-mono mr-1">OE-04:</span>
+                    Medir el índice de rendimiento de renderizado en cliente y latencia de red en transacciones críticas.
+                  </td>
+                  <td class="p-3.5">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/20 font-mono text-[10px]">
+                      <i data-lucide="check-circle" class="w-3 h-3"></i> DoD (Definition of Done)
+                    </span>
+                  </td>
+                  <td class="p-3.5">
+                    <span class="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-sky-500/10 text-sky-300 border border-sky-500/20 font-mono text-[10px]">
+                      Lighthouse / Web Vitals
+                    </span>
+                  </td>
+                  <td class="p-3.5 text-slate-300">
+                    Carga asíncrona por chunks y estado normalizado reducen el First Contentful Paint a menos de 0.8s.
+                  </td>
+                  <td class="p-3.5 pr-5">
+                    <span class="font-mono text-emerald-400 font-bold bg-emerald-950/60 px-2 py-1 rounded border border-emerald-500/30 text-[11px]">
+                      FCP 0.64s (&lt; 1s objetivo)
+                    </span>
+                  </td>
+                </tr>
+
+              </tbody>
+            </table>
+          </div>
+
+          <div class="p-3.5 bg-slate-950/80 border-t border-slate-800 flex items-center justify-between text-xs text-slate-400">
+            <span>Fuente: Validación experimental y formulación del proyecto de investigación.</span>
+            <button onclick="exportMatrixData()" class="text-indigo-400 hover:text-indigo-300 flex items-center gap-1 font-medium">
+              <i data-lucide="download" class="w-3.5 h-3.5"></i> Exportar Datos CSV / JSON
+            </button>
+          </div>
+        </div>
+
+        <!-- Research Conclusion Card -->
+        <div class="p-5 rounded-xl bg-gradient-to-r from-slate-900 to-indigo-950/40 border border-indigo-500/30">
+          <h4 class="text-sm font-bold text-white flex items-center gap-2 mb-2">
+            <i data-lucide="award" class="w-4 h-4 text-emerald-400"></i> Conclusión Clave de Christian Camilo Sandoval Vega
+          </h4>
+          <p class="text-xs text-slate-300 leading-relaxed">
+            "La coexistencia sinérgica de metodologías ágiles (Scrum/Kanban) con frameworks de desacoplamiento moderno (Spring Boot + React/Angular) trasciende la mera aceleración de tiempos de entrega: provee un modelo formal y sustentable de calidad de software donde la deuda técnica se gestiona en tiempo real y la arquitectura responde elásticamente a las demandas del negocio."
+          </p>
+        </div>
+
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: SIMULADOR DE DESPLIEGUE Y CONSUMO REST (SPRING BOOT) -->
+  <!-- ============================================================== -->
+  <div id="api-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      
+      <!-- Modal Header -->
+      <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+            <i data-lucide="terminal" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Simulador de Transacción REST Spring Boot &harr; Cliente</h3>
+            <p class="text-[11px] text-slate-400">Prueba de respuesta HTTP y serialización JSON en tiempo real</p>
+          </div>
+        </div>
+        <button onclick="closeApiSimulatorModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1">
+        
+        <!-- Endpoint Selection -->
+        <div>
+          <label class="text-xs font-semibold text-slate-300 block mb-1.5">Seleccionar Endpoint a Invocar:</label>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <button onclick="selectEndpoint('metrics')" id="btn-ep-metrics" class="endpoint-tab text-left p-2.5 rounded-lg border border-emerald-500/50 bg-emerald-950/30 text-xs font-mono">
+              <span class="text-[10px] text-emerald-400 font-bold block">GET</span>
+              <span class="text-slate-200">/api/v1/metricas</span>
+            </button>
+            <button onclick="selectEndpoint('tasks')" id="btn-ep-tasks" class="endpoint-tab text-left p-2.5 rounded-lg border border-slate-800 bg-slate-950 text-xs font-mono hover:border-slate-700">
+              <span class="text-[10px] text-sky-400 font-bold block">GET</span>
+              <span class="text-slate-200">/api/v1/kanban</span>
+            </button>
+            <button onclick="selectEndpoint('deploy')" id="btn-ep-deploy" class="endpoint-tab text-left p-2.5 rounded-lg border border-slate-800 bg-slate-950 text-xs font-mono hover:border-slate-700">
+              <span class="text-[10px] text-purple-400 font-bold block">POST</span>
+              <span class="text-slate-200">/api/v1/deploy</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Request Preview Headers -->
+        <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 text-[11px] font-mono space-y-1">
+          <div class="text-slate-400 font-sans font-semibold text-[10px] uppercase">Encabezados de la Solicitud (Client Request):</div>
+          <div class="text-slate-300"><span class="text-slate-500">Host:</span> api.sistemainfo-sandoval.internal:8080</div>
+          <div class="text-slate-300"><span class="text-slate-500">Authorization:</span> Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...</div>
+          <div class="text-slate-300"><span class="text-slate-500">User-Agent:</span> <span id="modal-user-agent">React-SPA-Client/18.2.0 (Axios 1.6)</span></div>
+        </div>
+
+        <!-- Execution Trigger -->
+        <div class="flex items-center justify-between">
+          <div id="sim-status" class="text-xs text-slate-400 flex items-center gap-1.5 font-mono">
+            <span class="w-2 h-2 rounded-full bg-slate-500"></span> Listo para ejecutar petición
+          </div>
+          <button id="btn-run-request" onclick="executeMockRequest()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg text-xs font-bold flex items-center gap-2 shadow-lg shadow-emerald-600/20 transition-all">
+            <i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i>
+            <span>Ejecutar Petición REST</span>
+          </button>
+        </div>
+
+        <!-- JSON Output Console -->
+        <div>
+          <div class="flex items-center justify-between mb-1.5 text-xs">
+            <span class="font-semibold text-slate-300">Respuesta del Servidor Spring Boot (Payload JSON):</span>
+            <span id="response-time-badge" class="font-mono text-[10px] text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-500/20 hidden">Status: 200 OK (22ms)</span>
+          </div>
+          <div class="relative bg-slate-950 border border-slate-800 rounded-lg p-3 font-mono text-xs overflow-x-auto max-h-56 custom-scrollbar">
+            <pre id="json-response-display" class="text-emerald-400 leading-relaxed">// Pulsa 'Ejecutar Petición REST' para simular el consumo del servicio Spring Boot...</pre>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Modal Footer -->
+      <div class="px-5 py-3 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between text-xs text-slate-400">
+        <span>Spring Controller: <code class="text-slate-300 font-mono">@RestController @CrossOrigin</code></span>
+        <button onclick="closeApiSimulatorModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors">
+          Cerrar Consola
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC & INTERACTIVITY -->
+  <script>
+    // State management
+    let currentFramework = 'react';
+    let currentTheme = 'dark';
+    let activeEndpoint = 'metrics';
+
+    // Initialize Lucide Icons
+    document.addEventListener("DOMContentLoaded", () => {
+      lucide.createIcons();
+      initCharts();
+      updateSprintProgress();
+    });
+
+    // Theme toggle
+    function toggleTheme() {
+      const html = document.documentElement;
+      const themeIcon = document.getElementById('theme-icon');
+      if (html.classList.contains('dark')) {
+        html.classList.remove('dark');
+        themeIcon.setAttribute('data-lucide', 'sun');
+      } else {
+        html.classList.add('dark');
+        themeIcon.setAttribute('data-lucide', 'moon');
+      }
+      lucide.createIcons();
+    }
+
+    // Tab Navigation
+    function navigateTab(tabKey) {
+      const sections = ['dashboard', 'agile', 'architecture', 'matrix'];
+      sections.forEach(sec => {
+        const secEl = document.getElementById(`section-${sec}`);
+        const navBtn = document.getElementById(`nav-${sec}`);
+        if (sec === tabKey) {
+          secEl.classList.remove('hidden');
+          navBtn.className = "nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all bg-indigo-600/20 text-indigo-300 border border-indigo-500/30";
+        } else {
+          secEl.classList.add('hidden');
+          navBtn.className = "nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white";
+        }
+      });
+
+      // Update View Title
+      const titleEl = document.getElementById('view-title');
+      if (tabKey === 'dashboard') {
+        titleEl.innerHTML = `<i data-lucide="layout-dashboard" class="w-5 h-5 text-indigo-400"></i> Dashboard General de Integración`;
+      } else if (tabKey === 'agile') {
+        titleEl.innerHTML = `<i data-lucide="kanban" class="w-5 h-5 text-amber-400"></i> Gestión Ágil: Scrum, Sprints & Kanban`;
+      } else if (tabKey === 'architecture') {
+        titleEl.innerHTML = `<i data-lucide="cpu" class="w-5 h-5 text-emerald-400"></i> Arquitectura & Frameworks (Spring Boot & Client)`;
+      } else if (tabKey === 'matrix') {
+        titleEl.innerHTML = `<i data-lucide="table-properties" class="w-5 h-5 text-sky-400"></i> Matriz de Coherencia e Impacto Metodológico`;
+      }
+      lucide.createIcons();
+    }
+
+    // Switch between React and Angular focus
+    function switchFrontend(fw) {
+      currentFramework = fw;
+      const btnReact = document.getElementById('btn-react');
+      const btnAngular = document.getElementById('btn-angular');
+      const headerBadge = document.getElementById('header-framework-badge');
+      const archBadge = document.getElementById('arch-active-frontend-badge');
+      const stackBox = document.getElementById('stack-frontend-box');
+      const stackName = document.getElementById('stack-frontend-name');
+      const stackDesc = document.getElementById('stack-frontend-desc');
+      const modalUa = document.getElementById('modal-user-agent');
+      const viewTitle = document.getElementById('frontend-view-title');
+      const viewSub = document.getElementById('frontend-view-sub');
+      const viewPill = document.getElementById('frontend-view-pill');
+      const techDetails = document.getElementById('frontend-tech-details');
+      const avatar = document.getElementById('frontend-avatar');
+
+      if (fw === 'react') {
+        btnReact.className = "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all bg-sky-500/20 text-sky-400 border border-sky-500/30 shadow-sm";
+        btnAngular.className = "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all text-slate-400 hover:text-slate-200";
+        headerBadge.innerHTML = `<i data-lucide="atom" class="w-3.5 h-3.5"></i> React SPA`;
+        headerBadge.className = "font-mono text-sky-400 font-semibold flex items-center gap-1";
+        if (archBadge) {
+          archBadge.textContent = "Frontend React Client";
+          archBadge.className = "px-2 py-0.5 rounded bg-sky-500/20 text-sky-400 font-mono text-xs border border-sky-500/30";
+        }
+        stackBox.className = "p-3 rounded-lg bg-sky-950/30 border border-sky-500/30 transition-all";
+        stackName.className = "text-xs font-bold text-sky-400 flex items-center gap-1.5";
+        stackName.innerHTML = `<i data-lucide="atom" class="w-4 h-4"></i> React 18 SPA (Cliente)`;
+        stackDesc.textContent = "Virtual DOM, Hooks para gestión de estado, React Query para consumo asíncrono y TailwindCSS para sistema de diseño atómico.";
+        modalUa.textContent = "React-SPA-Client/18.2.0 (Axios 1.6)";
+
+        if (viewTitle) {
+          viewTitle.textContent = "Arquitectura Frontend (React 18 SPA)";
+          viewSub.textContent = "Virtual DOM • React Query Client";
+          viewPill.textContent = "Client Side (React)";
+          viewPill.className = "text-[10px] px-2 py-0.5 rounded-full bg-sky-500/20 text-sky-400 font-semibold border border-sky-500/30";
+          avatar.className = "w-7 h-7 rounded-lg bg-sky-500/20 border border-sky-500/30 flex items-center justify-center text-sky-400";
+          avatar.innerHTML = `<i data-lucide="atom" class="w-4 h-4"></i>`;
+          techDetails.innerHTML = `
+            <div class="text-sky-400 font-semibold flex items-center gap-1.5">
+              <i data-lucide="cpu" class="w-3.5 h-3.5"></i> Beneficios según artículo Sandoval Vega:
+            </div>
+            <p class="text-slate-400 leading-relaxed text-[11px]">
+              React proporciona flexibilidad basada en funciones puras y custom hooks, optimizando la renderización selectiva mediante Reconciliación y Virtual DOM, resultando en alta reactividad para paneles de analítica ágil.
+            </p>
+          `;
+        }
+      } else {
+        btnAngular.className = "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all bg-red-500/20 text-red-400 border border-red-500/30 shadow-sm";
+        btnReact.className = "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all text-slate-400 hover:text-slate-200";
+        headerBadge.innerHTML = `<i data-lucide="shield" class="w-3.5 h-3.5"></i> Angular 17`;
+        headerBadge.className = "font-mono text-red-400 font-semibold flex items-center gap-1";
+        if (archBadge) {
+          archBadge.textContent = "Frontend Angular Client";
+          archBadge.className = "px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-mono text-xs border border-red-500/30";
+        }
+        stackBox.className = "p-3 rounded-lg bg-red-950/30 border border-red-500/30 transition-all";
+        stackName.className = "text-xs font-bold text-red-400 flex items-center gap-1.5";
+        stackName.innerHTML = `<i data-lucide="shield" class="w-4 h-4"></i> Angular 17 Standalone (Cliente)`;
+        stackDesc.textContent = "Arquitectura empresarial con TypeScript estricto, Inyección de Dependencias nativa, Signals reactivas y RxJS para flujos de datos.";
+        modalUa.textContent = "Angular-Platform-Browser/17.0 (HttpClient)";
+
+        if (viewTitle) {
+          viewTitle.textContent = "Arquitectura Frontend (Angular 17 Standalone)";
+          viewSub.textContent = "Signals • Dependency Injection • RxJS";
+          viewPill.textContent = "Enterprise Client (Angular)";
+          viewPill.className = "text-[10px] px-2 py-0.5 rounded-full bg-red-500/20 text-red-400 font-semibold border border-red-500/30";
+          avatar.className = "w-7 h-7 rounded-lg bg-red-500/20 border border-red-500/30 flex items-center justify-center text-red-400";
+          avatar.innerHTML = `<i data-lucide="shield" class="w-4 h-4"></i>`;
+          techDetails.innerHTML = `
+            <div class="text-red-400 font-semibold flex items-center gap-1.5">
+              <i data-lucide="cpu" class="w-3.5 h-3.5"></i> Beneficios según artículo Sandoval Vega:
+            </div>
+            <p class="text-slate-400 leading-relaxed text-[11px]">
+              Angular ofrece un marco estructurado altamente tipado con inyección de dependencias idéntica al paradigma de Spring Boot, facilitando a equipos Full-Stack mantener coherencia de patrones entre backend y frontend.
+            </p>
+          `;
+        }
+      }
+      lucide.createIcons();
+    }
+
+    // ==========================================
+    // KANBAN DRAG & DROP AND TASK INTERACTION
+    // ==========================================
+    function drag(ev) {
+      ev.dataTransfer.setData("text", ev.target.id);
+      ev.target.classList.add("dragging");
+    }
+
+    function allowDrop(ev) {
+      ev.preventDefault();
+    }
+
+    function drop(ev, colId) {
+      ev.preventDefault();
+      const cardId = ev.dataTransfer.getData("text");
+      const cardEl = document.getElementById(cardId);
+      if (cardEl) {
+        cardEl.classList.remove("dragging");
+        const targetCol = document.getElementById(colId);
+        targetCol.appendChild(cardEl);
+        updateKanbanBadges();
+        updateSprintProgress();
+      }
+    }
+
+    function moveTask(cardId, targetColId) {
+      const cardEl = document.getElementById(cardId);
+      const targetCol = document.getElementById(targetColId);
+      if (cardEl && targetCol) {
+        targetCol.appendChild(cardEl);
+        updateKanbanBadges();
+        updateSprintProgress();
+      }
+    }
+
+    function updateKanbanBadges() {
+      const cols = ['todo', 'progress', 'review', 'done'];
+      cols.forEach(c => {
+        const count = document.getElementById(`col-${c}`).querySelectorAll('[id^="card-"]').length;
+        document.getElementById(`badge-${c}`).textContent = count;
+      });
+    }
+
+    function updateSprintProgress() {
+      const doneCol = document.getElementById('col-done');
+      const allCards = document.querySelectorAll('[id^="card-"]').length;
+      const doneCards = doneCol.querySelectorAll('[id^="card-"]').length;
+      const percent = Math.round((doneCards / (allCards || 1)) * 100);
+      
+      const bar = document.getElementById('sprint-progress-bar');
+      const text = document.getElementById('sprint-percent-text');
+      if (bar && text) {
+        bar.style.width = `${percent}%`;
+        text.textContent = `${percent}% (${doneCards * 8} / ${allCards * 8} SP)`;
+      }
+    }
+
+    function promptAddTask() {
+      const title = prompt("Título de la nueva tarea ágil:", "Optimizar consulta Spring Data JPA con índices");
+      if (!title) return;
+      const cardCount = document.querySelectorAll('[id^="card-"]').length + 1;
+      const newCard = document.createElement('div');
+      newCard.id = `card-${cardCount}`;
+      newCard.draggable = true;
+      newCard.ondragstart = drag;
+      newCard.className = "bg-slate-800/90 border border-slate-700/60 hover:border-indigo-500/50 rounded-lg p-3 shadow cursor-grab active:cursor-grabbing transition-all";
+      newCard.innerHTML = `
+        <div class="flex items-center justify-between gap-1 mb-2">
+          <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30">Backend • Spring Boot</span>
+          <span class="text-[10px] text-slate-400 font-mono">3 SP</span>
+        </div>
+        <h5 class="text-xs font-bold text-slate-100 leading-snug">${title}</h5>
+        <p class="text-[11px] text-slate-400 mt-1">Tarea añadida dinámicamente en el backlog activo.</p>
+        <div class="mt-3 pt-2 border-t border-slate-700/50 flex items-center justify-between">
+          <span class="text-[10px] text-slate-400">Recién creada</span>
+          <button onclick="moveTask('${newCard.id}', 'col-progress')" class="text-[10px] text-indigo-400 font-medium">Mover &rarr;</button>
+        </div>
+      `;
+      document.getElementById('col-todo').appendChild(newCard);
+      updateKanbanBadges();
+      updateSprintProgress();
+    }
+
+    // ==========================================
+    // CHART.JS INITIALIZATION
+    // ==========================================
+    let compChartInstance = null;
+    let velChartInstance = null;
+
+    function initCharts() {
+      // 1. Comparative Chart
+      const ctxComp = document.getElementById('comparativeChart').getContext('2d');
+      compChartInstance = new Chart(ctxComp, {
+        type: 'bar',
+        data: {
+          labels: ['Velocidad Despliegue', 'Mantenibilidad', 'Adaptabilidad Cambios', 'Tiempo Respuesta', 'Satisfacción'],
+          datasets: [
+            {
+              label: 'Modelo Tradicional (Cascada / Monolito)',
+              data: [32, 45, 28, 54, 58],
+              backgroundColor: 'rgba(148, 163, 184, 0.4)',
+              borderColor: 'rgba(148, 163, 184, 0.8)',
+              borderWidth: 1,
+              borderRadius: 4
+            },
+            {
+              label: 'Ágil (Scrum/Kanban) + Spring Boot & SPA',
+              data: [89, 92, 94, 88, 93],
+              backgroundColor: 'rgba(16, 185, 129, 0.8)',
+              borderColor: 'rgba(16, 185, 129, 1)',
+              borderWidth: 1,
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: {
+                color: '#94a3b8',
+                font: { size: 11, family: 'Plus Jakarta Sans' }
+              }
+            },
+            tooltip: {
+              backgroundColor: '#0f172a',
+              titleColor: '#f8fafc',
+              bodyColor: '#cbd5e1',
+              borderColor: '#334155',
+              borderWidth: 1
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#94a3b8', font: { size: 10 } },
+              grid: { color: 'rgba(51, 65, 85, 0.3)' }
+            },
+            y: {
+              max: 100,
+              ticks: { color: '#94a3b8', font: { size: 10 } },
+              grid: { color: 'rgba(51, 65, 85, 0.3)' }
+            }
+          }
+        }
+      });
+
+      // 2. Velocity Chart
+      const ctxVel = document.getElementById('velocityChart').getContext('2d');
+      velChartInstance = new Chart(ctxVel, {
+        type: 'line',
+        data: {
+          labels: ['Sprint 10', 'Sprint 11', 'Sprint 12', 'Sprint 13', 'Sprint 14 (Actual)'],
+          datasets: [
+            {
+              label: 'Story Points Completados',
+              data: [26, 32, 35, 38, 30],
+              borderColor: '#10b981',
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              fill: true,
+              tension: 0.3,
+              borderWidth: 2,
+              pointBackgroundColor: '#10b981',
+              pointRadius: 4
+            },
+            {
+              label: 'Capacidad Estimada (Commitment)',
+              data: [30, 34, 36, 38, 40],
+              borderColor: '#6366f1',
+              borderDash: [5, 5],
+              tension: 0,
+              borderWidth: 1.5,
+              fill: false,
+              pointRadius: 3
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: {
+              position: 'top',
+              labels: { color: '#94a3b8', font: { size: 10 } }
+            }
+          },
+          scales: {
+            x: {
+              ticks: { color: '#94a3b8', font: { size: 10 } },
+              grid: { color: 'rgba(51, 65, 85, 0.2)' }
+            },
+            y: {
+              min: 20,
+              max: 45,
+              ticks: { color: '#94a3b8', font: { size: 10 } },
+              grid: { color: 'rgba(51, 65, 85, 0.2)' }
+            }
+          }
+        }
+      });
+    }
+
+    // ==========================================
+    // API SIMULATOR LOGIC (REST PLAYGROUND)
+    // ==========================================
+    function openApiSimulatorModal() {
+      document.getElementById('api-modal').classList.remove('hidden');
+    }
+
+    function closeApiSimulatorModal() {
+      document.getElementById('api-modal').classList.add('hidden');
+    }
+
+    function selectEndpoint(ep) {
+      activeEndpoint = ep;
+      const tabs = ['metrics', 'tasks', 'deploy'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`btn-ep-${t}`);
+        if (t === ep) {
+          btn.className = "endpoint-tab text-left p-2.5 rounded-lg border border-emerald-500/50 bg-emerald-950/30 text-xs font-mono";
+        } else {
+          btn.className = "endpoint-tab text-left p-2.5 rounded-lg border border-slate-800 bg-slate-950 text-xs font-mono hover:border-slate-700";
+        }
+      });
+    }
+
+    function executeMockRequest() {
+      const btn = document.getElementById('btn-run-request');
+      const statusEl = document.getElementById('sim-status');
+      const display = document.getElementById('json-response-display');
+      const badge = document.getElementById('response-time-badge');
+
+      btn.disabled = true;
+      btn.innerHTML = `<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i> Procesando...`;
+      lucide.createIcons();
+
+      statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400 animate-ping"></span> Enviando HTTP GET a Spring Boot DispatcherServlet...`;
+
+      setTimeout(() => {
+        btn.disabled = false;
+        btn.innerHTML = `<i data-lucide="play" class="w-3.5 h-3.5 fill-current"></i> Ejecutar Petición REST`;
+        badge.classList.remove('hidden');
+
+        statusEl.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400"></span> Respuesta recibida con código HTTP 200 OK`;
+
+        let payload = {};
+        if (activeEndpoint === 'metrics') {
+          payload = {
+            timestamp: new Date().toISOString(),
+            status: 200,
+            servidor: "Spring-Boot/3.2.4 (OpenJDK 21 LTS)",
+            investigador: "Christian Camilo Sandoval Vega",
+            metodologia: "Scrum + Kanban",
+            stack: {
+              backend: "Spring WebFlux / JPA / Security",
+              frontendActivo: currentFramework.toUpperCase(),
+              arquitectura: "Decoupled Clean Architecture"
+            },
+            metricas: {
+              eficienciaEquipo: 88.4,
+              mantenibilidadCodigo: "A+",
+              leadTimeDias: 11.2,
+              coberturaTest: "87.2%"
+            }
+          };
+        } else if (activeEndpoint === 'tasks') {
+          payload = {
+            timestamp: new Date().toISOString(),
+            sprintId: 14,
+            limiteWIP: 3,
+            tareasActivas: [
+              { id: "TASK-101", titulo: "Refactorizar SecurityFilterChain", estado: "EN_CODE_REVIEW", sp: 5 },
+              { id: "TASK-102", titulo: "Diseñar componentes en React/Angular", estado: "EN_PROGRESO", sp: 8 },
+              { id: "TASK-103", titulo: "Caché Redis en Microservicio", estado: "POR_HACER", sp: 5 }
+            ],
+            resumen: "Sincronizado correctamente con base de datos PostgreSQL."
+          };
+        } else {
+          payload = {
+            timestamp: new Date().toISOString(),
+            evento: "DEPLOY_SIMULATION_SUCCESS",
+            target: "Kubernetes Cluster / AWS ECS",
+            buildPipeline: {
+              commit: "f7d921a",
+              author: "Christian Sandoval",
+              testResults: "148 passed, 0 failed (100% OK)",
+              imageDigest: "sha256:4b209a3fc876..."
+            },
+            mensaje: "Despliegue canary ejecutado sin degradación de tráfico."
+          };
+        }
+
+        display.textContent = JSON.stringify(payload, null, 2);
+        lucide.createIcons();
+      }, 650);
+    }
+
+    // ==========================================
+    // MATRIX TABLE FILTERING
+    // ==========================================
+    function filterMatrixTable() {
+      const q = document.getElementById('matrix-search').value.toLowerCase();
+      const cat = document.getElementById('matrix-filter').value;
+      const rows = document.querySelectorAll('.matrix-row');
+
+      rows.forEach(r => {
+        const text = r.innerText.toLowerCase();
+        const rowCat = r.getAttribute('data-category');
+        const matchSearch = text.includes(q);
+        const matchCat = cat === 'all' || rowCat === cat;
+
+        if (matchSearch && matchCat) {
+          r.style.display = '';
+        } else {
+          r.style.display = 'none';
+        }
+      });
+    }
+
+    function exportMatrixData() {
+      alert("Exportación de Matriz: Generando dataset con los 4 Objetivos Específicos y métricas de impacto de Christian Sandoval...");
+    }
+  </script>
+</body>
+</html>

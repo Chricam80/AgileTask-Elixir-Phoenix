@@ -1,0 +1,38 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function isValidId(id) {
+      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    match /microservices/{serviceId} {
+      allow read: if true;
+      allow write: if isValidId(serviceId)
+        && request.resource.data.name is string && request.resource.data.name.size() <= 100
+        && request.resource.data.dockerImage is string && request.resource.data.dockerImage.size() <= 150
+        && request.resource.data.port is number;
+    }
+
+    match /kanban_tasks/{taskId} {
+      allow read: if true;
+      allow create, update: if isValidId(taskId)
+        && request.resource.data.title is string && request.resource.data.title.size() <= 150
+        && request.resource.data.category in ['backend', 'frontend', 'devops']
+        && request.resource.data.storyPoints is number
+        && request.resource.data.status in ['col-todo', 'col-progress', 'col-review', 'col-done'];
+      allow delete: if isValidId(taskId);
+    }
+
+    match /matrix_items/{itemId} {
+      allow read: if true;
+      allow write: if isValidId(itemId)
+        && request.resource.data.code is string && request.resource.data.code.size() <= 20
+        && request.resource.data.objective is string && request.resource.data.objective.size() <= 300
+        && request.resource.data.category in ['metodologico', 'arquitectura', 'calidad'];
+    }
+  }
+}

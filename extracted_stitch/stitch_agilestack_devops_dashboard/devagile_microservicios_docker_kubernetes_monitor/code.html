@@ -1,0 +1,1604 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DevAgile - Arquitectura de Microservicios, Docker & Kubernetes</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              react: '#00d8ff',
+              angular: '#dd0031',
+              spring: '#6db33f',
+              dark: '#0f172a',
+              card: '#1e293b',
+              accent: '#f59e0b',
+              k8s: '#326ce5',
+              docker: '#2496ed',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap');
+    body { font-family: 'Plus Jakarta Sans', sans-serif; }
+    code, pre, .font-mono { font-family: 'JetBrains Mono', monospace; }
+    .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
+    .custom-scrollbar::-webkit-scrollbar-track { background: rgba(15, 23, 42, 0.6); }
+    .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(71, 85, 105, 0.6); border-radius: 4px; }
+    .kanban-col { min-height: 480px; }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex antialiased selection:bg-blue-600 selection:text-white transition-colors duration-200">
+
+  <!-- SIDEBAR NAVIGATION -->
+  <aside class="w-72 bg-slate-900/95 backdrop-blur-xl border-r border-slate-800 flex flex-col flex-shrink-0 z-20">
+    <!-- Brand Header -->
+    <div class="p-5 border-b border-slate-800">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 via-indigo-500 to-emerald-400 p-[2px] flex items-center justify-center shadow-lg shadow-blue-500/20">
+          <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center">
+            <i data-lucide="boxes" class="w-5 h-5 text-blue-400"></i>
+          </div>
+        </div>
+        <div>
+          <h1 class="text-sm font-bold tracking-tight text-white flex items-center gap-1.5">
+            DevAgile<span class="text-xs px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono font-medium border border-blue-500/30">v3.5</span>
+          </h1>
+          <p class="text-[11px] text-slate-400 truncate max-w-[170px]" title="Investigación: Christian Sandoval Vega">C. Sandoval Vega • Research</p>
+        </div>
+      </div>
+      <div class="mt-3 text-[11px] bg-slate-800/60 rounded-lg p-2 text-slate-300 border border-slate-700/50 leading-relaxed">
+        <span class="text-blue-400 font-semibold">Tesis/Paper:</span> Metodologías Ágiles + Microservicios Docker/K8s & Spring Boot.
+      </div>
+    </div>
+
+    <!-- Active Frontend Switcher -->
+    <div class="px-4 py-3 border-b border-slate-800/80 bg-slate-950/40">
+      <label class="text-[10px] uppercase tracking-wider font-semibold text-slate-400 mb-1.5 block">Cliente Frontend Activo</label>
+      <div class="grid grid-cols-2 gap-1.5 bg-slate-900 p-1 rounded-lg border border-slate-800">
+        <button id="btn-react" onclick="switchFrontend('react')" class="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all bg-sky-500/20 text-sky-400 border border-sky-500/30 shadow-sm">
+          <i data-lucide="atom" class="w-3.5 h-3.5"></i>
+          <span>React 18</span>
+        </button>
+        <button id="btn-angular" onclick="switchFrontend('angular')" class="flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all text-slate-400 hover:text-slate-200">
+          <i data-lucide="shield" class="w-3.5 h-3.5"></i>
+          <span>Angular 17</span>
+        </button>
+      </div>
+    </div>
+
+    <!-- Main Navigation Menu -->
+    <nav class="flex-1 p-3 space-y-1.5 overflow-y-auto custom-scrollbar">
+      <div class="px-3 pt-2 pb-1 text-[10px] font-semibold text-slate-400 tracking-wider uppercase">Plataforma & Módulos</div>
+      
+      <button onclick="navigateTab('architecture')" id="nav-architecture" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all bg-blue-600/20 text-blue-300 border border-blue-500/30">
+        <i data-lucide="boxes" class="w-4 h-4 text-blue-400"></i>
+        <div class="text-left flex-1">
+          <div class="leading-tight flex items-center gap-1.5">
+            <span class="font-bold text-white">Microservicios & K8s</span>
+            <span class="text-[9px] px-1 rounded bg-blue-500/30 text-blue-300 font-mono border border-blue-400/40">v1.29</span>
+          </div>
+          <span class="text-[10px] text-blue-300/80">Docker Containers & Infra</span>
+        </div>
+        <span class="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse"></span>
+      </button>
+
+      <button onclick="navigateTab('dashboard')" id="nav-dashboard" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white">
+        <i data-lucide="layout-dashboard" class="w-4 h-4 text-indigo-400"></i>
+        <div class="text-left flex-1">
+          <div class="leading-tight">Dashboard General</div>
+          <span class="text-[10px] text-slate-400">Métricas & Comparativa</span>
+        </div>
+      </button>
+
+      <button onclick="navigateTab('agile')" id="nav-agile" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white">
+        <i data-lucide="kanban" class="w-4 h-4 text-amber-400"></i>
+        <div class="text-left flex-1">
+          <div class="leading-tight">Gestión Ágil</div>
+          <span class="text-[10px] text-slate-400">Scrum, Sprints & Kanban</span>
+        </div>
+      </button>
+
+      <button onclick="navigateTab('matrix')" id="nav-matrix" class="nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white">
+        <i data-lucide="table-properties" class="w-4 h-4 text-emerald-400"></i>
+        <div class="text-left flex-1">
+          <div class="leading-tight">Matriz de Coherencia</div>
+          <span class="text-[10px] text-slate-400">Validación empírica Sandoval</span>
+        </div>
+      </button>
+
+      <!-- Live Telemetry Widget in Sidebar -->
+      <div class="pt-4 px-3 pb-1 text-[10px] font-semibold text-slate-400 tracking-wider uppercase">Telemetría de Clúster (K8s)</div>
+      <div class="mx-2 p-2.5 rounded-lg bg-slate-950/70 border border-slate-800 text-[11px] space-y-2 font-mono">
+        <div class="flex items-center justify-between text-slate-400">
+          <span class="flex items-center gap-1.5"><i data-lucide="cpu" class="w-3.5 h-3.5 text-blue-400"></i> CPU Cluster</span>
+          <span class="text-blue-400 font-semibold" id="sidebar-cpu">7.68 / 16 Cores</span>
+        </div>
+        <div class="flex items-center justify-between text-slate-400">
+          <span class="flex items-center gap-1.5"><i data-lucide="hard-drive" class="w-3.5 h-3.5 text-sky-400"></i> RAM Cluster</span>
+          <span class="text-sky-400 font-semibold" id="sidebar-ram">39.7 / 64 GB</span>
+        </div>
+        <div class="flex items-center justify-between text-slate-400">
+          <span class="flex items-center gap-1.5"><i data-lucide="layers" class="w-3.5 h-3.5 text-emerald-400"></i> Pods Saludables</span>
+          <span class="text-emerald-400 font-semibold" id="sidebar-pods">24 / 24</span>
+        </div>
+        <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+          <div class="bg-gradient-to-r from-blue-500 via-indigo-500 to-emerald-400 h-1.5 rounded-full" id="sidebar-bar" style="width: 62%"></div>
+        </div>
+      </div>
+    </nav>
+
+    <!-- Footer Author / Profile -->
+    <div class="p-3 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center font-bold text-xs text-white shadow">
+          CS
+        </div>
+        <div class="text-left">
+          <div class="text-xs font-semibold text-slate-200">Christian Sandoval</div>
+          <div class="text-[10px] text-slate-400">Autor / Lead Researcher</div>
+        </div>
+      </div>
+      <button onclick="toggleTheme()" class="p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition-colors" title="Cambiar tema">
+        <i data-lucide="moon" id="theme-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+  </aside>
+
+  <!-- MAIN VIEWPORT -->
+  <main class="flex-1 flex flex-col min-h-screen overflow-x-hidden bg-slate-950">
+    
+    <!-- Top Global Header -->
+    <header class="h-16 border-b border-slate-800 bg-slate-900/70 backdrop-blur-md px-6 flex items-center justify-between sticky top-0 z-10">
+      <div class="flex items-center gap-3">
+        <h2 id="view-title" class="text-base font-bold text-white flex items-center gap-2">
+          <i data-lucide="boxes" class="w-5 h-5 text-blue-400"></i>
+          Arquitectura de Microservicios & Orquestación Docker / Kubernetes
+        </h2>
+        <span class="text-xs px-2.5 py-0.5 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 flex items-center gap-1.5 font-mono">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span> k8s-cluster: READY
+        </span>
+      </div>
+
+      <!-- Quick Action Controls -->
+      <div class="flex items-center gap-3">
+        <div class="hidden md:flex items-center gap-2 text-xs bg-slate-900 border border-slate-800 rounded-lg px-3 py-1.5 text-slate-300">
+          <span class="text-slate-400 font-medium">Orquestador:</span>
+          <span class="flex items-center gap-1 text-blue-400 font-mono font-semibold">
+            <i data-lucide="boxes" class="w-3.5 h-3.5"></i> K8s v1.29
+          </span>
+          <span class="text-slate-600">|</span>
+          <span class="text-slate-400 font-medium">Docker:</span>
+          <span class="flex items-center gap-1 text-sky-400 font-mono font-semibold">
+            <i data-lucide="container" class="w-3.5 h-3.5"></i> Engine 26.0
+          </span>
+          <span class="text-slate-600">|</span>
+          <span class="text-slate-400 font-medium">Backend:</span>
+          <span class="flex items-center gap-1 text-emerald-400 font-mono font-semibold">
+            <i data-lucide="leaf" class="w-3.5 h-3.5"></i> Spring Boot 3.2
+          </span>
+        </div>
+
+        <button onclick="openApiSimulatorModal()" class="flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white shadow-lg shadow-emerald-600/20 transition-all">
+          <i data-lucide="terminal" class="w-3.5 h-3.5 fill-current"></i>
+          <span>Simulador REST API</span>
+        </button>
+      </div>
+    </header>
+
+    <!-- CONTENT CONTAINERS -->
+    <div class="p-6 flex-1 space-y-6 max-w-7xl w-full mx-auto">
+      
+      <!-- ============================================================== -->
+      <!-- SECTION: ARQUITECTURA & MICROSERVICIOS (DOCKER & KUBERNETES)   -->
+      <!-- ============================================================== -->
+      <div id="section-architecture" class="space-y-6">
+        
+        <!-- Architecture Hero Header with Cluster Badge -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-blue-950/60 to-slate-900 border border-blue-500/30 p-6 shadow-xl">
+          <div class="absolute -right-8 -top-8 w-48 h-48 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <div class="absolute right-40 -bottom-10 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          
+          <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-5 relative z-10">
+            <div class="max-w-3xl">
+              <div class="inline-flex items-center gap-2 text-xs font-semibold text-blue-400 bg-blue-950/80 border border-blue-500/40 px-2.5 py-1 rounded-md mb-2 font-mono">
+                <i data-lucide="server" class="w-3.5 h-3.5 text-blue-400"></i> Desacoplamiento & Microservicios • Christian Camilo Sandoval Vega (2024)
+              </div>
+              <h1 class="text-xl md:text-2xl font-black text-white tracking-tight leading-snug">
+                Infraestructura Cloud-Native: Docker Containerization & Kubernetes Orchestration
+              </h1>
+              <p class="text-xs md:text-sm text-slate-300 mt-2 leading-relaxed">
+                Supervisión del clúster de microservicios desarrollados en Spring Boot 3.2, empaquetados en contenedores inmutables Docker Alpine Linux y orquestados mediante Kubernetes con autoescalado elástico HPA, Service Mesh Istio y balanceo Ingress.
+              </p>
+            </div>
+
+            <!-- Actions Header Button Group -->
+            <div class="flex items-center gap-2.5 flex-wrap">
+              <button onclick="toggleManifestModal()" class="px-3.5 py-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 text-xs font-semibold flex items-center gap-2 transition-all shadow">
+                <i data-lucide="file-code" class="w-4 h-4 text-blue-400"></i>
+                <span>Ver Dockerfile / Manifiestos K8s</span>
+              </button>
+              <button onclick="simulateHpaScaling()" id="btn-scale-hpa-main" class="px-4 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white font-semibold text-xs flex items-center gap-2 shadow-lg shadow-blue-600/30 transition-all">
+                <i data-lucide="scaling" class="w-4 h-4"></i>
+                <span id="hpa-main-text">Simular Escalado HPA (Pods +2)</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- 1. KUBERNETES CLUSTER LEVEL OVERVIEW METRICS (4 CARDS) -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Card 1: Cluster Health & Nodes -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4.5 hover:border-blue-500/40 transition-all">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+                <i data-lucide="activity" class="w-3.5 h-3.5 text-emerald-400"></i> Estado del Clúster K8s
+              </span>
+              <span class="flex items-center gap-1 text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Healthy
+              </span>
+            </div>
+            <div class="mt-3">
+              <div class="text-2xl font-black text-white font-mono">4 Nodos Activos</div>
+              <div class="text-[11px] text-slate-400 mt-1 flex items-center justify-between">
+                <span>3 Workers + 1 Control Plane</span>
+                <span class="text-blue-400 font-mono font-semibold">k8s v1.29.3</span>
+              </div>
+            </div>
+            <div class="mt-3 pt-2.5 border-t border-slate-800 text-[10px] font-mono text-slate-400 flex justify-between">
+              <span>Etcd Quorum: OK</span>
+              <span class="text-emerald-400">API Server: 99.99%</span>
+            </div>
+          </div>
+
+          <!-- Card 2: CPU Utilization -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4.5 hover:border-blue-500/40 transition-all">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+                <i data-lucide="cpu" class="w-3.5 h-3.5 text-blue-400"></i> Asignación CPU Clúster
+              </span>
+              <span id="k8s-cpu-badge" class="font-mono text-xs font-bold text-blue-400 bg-blue-950/60 px-2 py-0.5 rounded border border-blue-500/30">48%</span>
+            </div>
+            <div class="mt-3">
+              <div class="text-2xl font-black text-white font-mono"><span id="k8s-cpu-num">7.68</span> / 16 Cores</div>
+              <div class="w-full bg-slate-800 rounded-full h-2 mt-2 overflow-hidden">
+                <div id="k8s-cpu-bar" class="bg-gradient-to-r from-blue-500 to-indigo-500 h-2 rounded-full transition-all duration-500" style="width: 48%"></div>
+              </div>
+              <div class="text-[10px] text-slate-400 mt-1.5 flex justify-between font-mono">
+                <span>Requests: 4.8 Cores</span>
+                <span>Limits: 14.0 Cores</span>
+              </div>
+            </div>
+            <div class="mt-3 pt-2.5 border-t border-slate-800 text-[10px] font-mono text-slate-400 flex justify-between">
+              <span>Throttling: 0.02%</span>
+              <span class="text-emerald-400">Margen Seguro: 52%</span>
+            </div>
+          </div>
+
+          <!-- Card 3: RAM Memory Utilization -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4.5 hover:border-blue-500/40 transition-all">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+                <i data-lucide="hard-drive" class="w-3.5 h-3.5 text-sky-400"></i> Memoria RAM Clúster
+              </span>
+              <span id="k8s-ram-badge" class="font-mono text-xs font-bold text-sky-400 bg-sky-950/60 px-2 py-0.5 rounded border border-sky-500/30">62%</span>
+            </div>
+            <div class="mt-3">
+              <div class="text-2xl font-black text-white font-mono"><span id="k8s-ram-num">39.68</span> / 64 GB</div>
+              <div class="w-full bg-slate-800 rounded-full h-2 mt-2 overflow-hidden">
+                <div id="k8s-ram-bar" class="bg-gradient-to-r from-sky-500 to-emerald-400 h-2 rounded-full transition-all duration-500" style="width: 62%"></div>
+              </div>
+              <div class="text-[10px] text-slate-400 mt-1.5 flex justify-between font-mono">
+                <span>Working Set: 32.1 GB</span>
+                <span>Buffers: 7.5 GB</span>
+              </div>
+            </div>
+            <div class="mt-3 pt-2.5 border-t border-slate-800 text-[10px] font-mono text-slate-400 flex justify-between">
+              <span>Swap K8s: Disabled</span>
+              <span class="text-emerald-400">OOMKills: 0</span>
+            </div>
+          </div>
+
+          <!-- Card 4: Pods Lifecycle & Docker Engine -->
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4.5 hover:border-blue-500/40 transition-all">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-semibold text-slate-400 flex items-center gap-1.5">
+                <i data-lucide="layers" class="w-3.5 h-3.5 text-indigo-400"></i> Pods & Docker Status
+              </span>
+              <span class="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 border border-emerald-500/30">0 Restarts</span>
+            </div>
+            <div class="mt-3">
+              <div class="text-2xl font-black text-white font-mono flex items-center gap-2">
+                <span id="k8s-pods-live">24</span> / <span id="k8s-pods-total">24</span> Running
+              </div>
+              <div class="w-full bg-slate-800 rounded-full h-2 mt-2 overflow-hidden">
+                <div class="bg-emerald-400 h-2 rounded-full" style="width: 100%"></div>
+              </div>
+              <div class="text-[10px] text-slate-400 mt-1.5 flex justify-between font-mono">
+                <span class="text-emerald-400 flex items-center gap-1"><i data-lucide="check" class="w-3 h-3"></i> 100% Ready</span>
+                <span>CrashLoop: 0</span>
+              </div>
+            </div>
+            <div class="mt-3 pt-2.5 border-t border-slate-800 text-[10px] font-mono text-slate-400 flex justify-between">
+              <span>Docker Runtime: containerd</span>
+              <span class="text-sky-400">Network: CNI Calico</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2. GRID OF CONTAINERIZED SPRING BOOT MICROSERVICES (DOCKER + K8S MANAGED) -->
+        <div class="space-y-3">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <i data-lucide="container" class="w-4 h-4 text-blue-400"></i>
+                Microservicios Spring Boot Desacoplados (Imágenes Docker Contenerizadas)
+              </h3>
+              <p class="text-xs text-slate-400">Servicios empaquetados en micro-imágenes Alpine, orquestados como Deployments de Kubernetes.</p>
+            </div>
+            <span class="text-xs font-mono text-slate-400 bg-slate-900 px-3 py-1 rounded-lg border border-slate-800 flex items-center gap-1.5">
+              <i data-lucide="refresh-cw" class="w-3 h-3 text-emerald-400 animate-spin"></i> Polling métricas: 2.5s
+            </span>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            
+            <!-- Microservice 1: auth-service -->
+            <div class="bg-slate-900/90 border border-slate-800 hover:border-blue-500/40 rounded-xl p-5 transition-all">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-sm font-bold text-white font-mono">auth-service</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono font-semibold border border-blue-500/30 flex items-center gap-1">
+                      <i data-lucide="container" class="w-3 h-3"></i> Docker Alpine
+                    </span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono">200 OK</span>
+                  </div>
+                  <div class="text-xs text-slate-400 mt-1">Spring Boot 3.2 + Spring Security 6 (Firma y Validación Stateless JWT)</div>
+                </div>
+                <div class="text-right">
+                  <span id="pods-auth-count" class="text-xs font-mono font-bold text-blue-400 bg-blue-950/80 px-2.5 py-1 rounded-md border border-blue-500/40">3 Pods</span>
+                </div>
+              </div>
+
+              <!-- Docker Spec Box -->
+              <div class="mt-3 p-2.5 rounded-lg bg-slate-950/80 border border-slate-800 text-[11px] font-mono space-y-1">
+                <div class="flex justify-between text-slate-300">
+                  <span class="text-slate-500">Docker Image:</span>
+                  <span class="text-slate-200">sandoval/auth-service:v2.4-alpine (138MB)</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                  <span class="text-slate-500">Security Cfg:</span>
+                  <span class="text-emerald-400">RS256 Public Key • JWT Expiry 3600s</span>
+                </div>
+              </div>
+
+              <!-- Telemetry Grid -->
+              <div class="mt-3 pt-3 border-t border-slate-800 grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                  <span class="text-[10px] text-slate-400 block font-mono">CPU Usage</span>
+                  <span class="font-mono font-bold text-emerald-400">12%</span>
+                </div>
+                <div class="bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                  <span class="text-[10px] text-slate-400 block font-mono">RAM Alloc</span>
+                  <span class="font-mono font-bold text-sky-400">410 MB</span>
+                </div>
+                <div class="bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                  <span class="text-[10px] text-slate-400 block font-mono">Latencia P99</span>
+                  <span class="font-mono font-bold text-emerald-400">14 ms</span>
+                </div>
+              </div>
+
+              <!-- Pod selector trigger -->
+              <div class="mt-3 pt-1 flex justify-between items-center text-[11px]">
+                <span class="text-slate-500 font-mono">Port: 8081 / HTTP</span>
+                <button onclick="inspectPod('auth')" class="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 font-mono">
+                  Inspeccionar Pod & Logs &rarr;
+                </button>
+              </div>
+            </div>
+
+            <!-- Microservice 2: metrics-service -->
+            <div id="card-service-metrics" class="bg-slate-900/90 border border-slate-800 hover:border-blue-500/40 rounded-xl p-5 transition-all">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-sm font-bold text-white font-mono">metrics-service</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono font-semibold border border-blue-500/30 flex items-center gap-1">
+                      <i data-lucide="container" class="w-3 h-3"></i> Docker Alpine
+                    </span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono">200 OK</span>
+                  </div>
+                  <div class="text-xs text-slate-400 mt-1">Spring Boot WebFlux Reactivo (Netty no bloqueante + Server-Sent Events)</div>
+                </div>
+                <div class="text-right">
+                  <span id="pods-metrics-count" class="text-xs font-mono font-bold text-blue-400 bg-blue-950/80 px-2.5 py-1 rounded-md border border-blue-500/40">4 Pods</span>
+                </div>
+              </div>
+
+              <!-- Docker Spec Box -->
+              <div class="mt-3 p-2.5 rounded-lg bg-slate-950/80 border border-slate-800 text-[11px] font-mono space-y-1">
+                <div class="flex justify-between text-slate-300">
+                  <span class="text-slate-500">Docker Image:</span>
+                  <span class="text-slate-200">sandoval/metrics-service:v3.1 (142MB)</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                  <span class="text-slate-500">Reactive Engine:</span>
+                  <span class="text-sky-400">Reactor Netty Non-Blocking I/O</span>
+                </div>
+              </div>
+
+              <!-- Telemetry Grid -->
+              <div class="mt-3 pt-3 border-t border-slate-800 grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                  <span class="text-[10px] text-slate-400 block font-mono">CPU Usage</span>
+                  <span id="metric-cpu-val" class="font-mono font-bold text-emerald-400">28%</span>
+                </div>
+                <div class="bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                  <span class="text-[10px] text-slate-400 block font-mono">RAM Alloc</span>
+                  <span id="metric-ram-val" class="font-mono font-bold text-sky-400">680 MB</span>
+                </div>
+                <div class="bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                  <span class="text-[10px] text-slate-400 block font-mono">Latencia P99</span>
+                  <span class="font-mono font-bold text-emerald-400">8 ms</span>
+                </div>
+              </div>
+
+              <!-- Pod selector trigger -->
+              <div class="mt-3 pt-1 flex justify-between items-center text-[11px]">
+                <span class="text-slate-500 font-mono">Port: 8082 / HTTP</span>
+                <button onclick="inspectPod('metrics')" class="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 font-mono">
+                  Inspeccionar Pod & Logs &rarr;
+                </button>
+              </div>
+            </div>
+
+            <!-- Microservice 3: kanban-workflow-service -->
+            <div class="bg-slate-900/90 border border-slate-800 hover:border-blue-500/40 rounded-xl p-5 transition-all">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-sm font-bold text-white font-mono">kanban-workflow-service</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono font-semibold border border-blue-500/30 flex items-center gap-1">
+                      <i data-lucide="container" class="w-3 h-3"></i> Docker Alpine
+                    </span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono">200 OK</span>
+                  </div>
+                  <div class="text-xs text-slate-400 mt-1">Spring Boot Data JPA + Hibernate (Transacciones Ágiles & Pool HikariCP)</div>
+                </div>
+                <div class="text-right">
+                  <span id="pods-kanban-count" class="text-xs font-mono font-bold text-blue-400 bg-blue-950/80 px-2.5 py-1 rounded-md border border-blue-500/40">3 Pods</span>
+                </div>
+              </div>
+
+              <!-- Docker Spec Box -->
+              <div class="mt-3 p-2.5 rounded-lg bg-slate-950/80 border border-slate-800 text-[11px] font-mono space-y-1">
+                <div class="flex justify-between text-slate-300">
+                  <span class="text-slate-500">Docker Image:</span>
+                  <span class="text-slate-200">sandoval/kanban-api:v1.9 (156MB)</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                  <span class="text-slate-500">Persistence Target:</span>
+                  <span class="text-purple-400">PostgreSQL 16 StatefulSet K8s</span>
+                </div>
+              </div>
+
+              <!-- Telemetry Grid -->
+              <div class="mt-3 pt-3 border-t border-slate-800 grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                  <span class="text-[10px] text-slate-400 block font-mono">CPU Usage</span>
+                  <span class="font-mono font-bold text-emerald-400">18%</span>
+                </div>
+                <div class="bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                  <span class="text-[10px] text-slate-400 block font-mono">RAM Alloc</span>
+                  <span class="font-mono font-bold text-sky-400">512 MB</span>
+                </div>
+                <div class="bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                  <span class="text-[10px] text-slate-400 block font-mono">Latencia P99</span>
+                  <span class="font-mono font-bold text-amber-400">22 ms</span>
+                </div>
+              </div>
+
+              <!-- Pod selector trigger -->
+              <div class="mt-3 pt-1 flex justify-between items-center text-[11px]">
+                <span class="text-slate-500 font-mono">Port: 8083 / HTTP</span>
+                <button onclick="inspectPod('kanban')" class="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 font-mono">
+                  Inspeccionar Pod & Logs &rarr;
+                </button>
+              </div>
+            </div>
+
+            <!-- Microservice 4: notification-gateway -->
+            <div class="bg-slate-900/90 border border-slate-800 hover:border-blue-500/40 rounded-xl p-5 transition-all">
+              <div class="flex items-start justify-between gap-2">
+                <div>
+                  <div class="flex items-center gap-2 flex-wrap">
+                    <span class="text-sm font-bold text-white font-mono">notification-gateway</span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono font-semibold border border-blue-500/30 flex items-center gap-1">
+                      <i data-lucide="container" class="w-3 h-3"></i> Docker Alpine
+                    </span>
+                    <span class="text-[10px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono">200 OK</span>
+                  </div>
+                  <div class="text-xs text-slate-400 mt-1">Spring Cloud Gateway + Netty (Reverse Proxy, Rate Limiter & WebSockets)</div>
+                </div>
+                <div class="text-right">
+                  <span id="pods-gateway-count" class="text-xs font-mono font-bold text-blue-400 bg-blue-950/80 px-2.5 py-1 rounded-md border border-blue-500/40">2 Pods</span>
+                </div>
+              </div>
+
+              <!-- Docker Spec Box -->
+              <div class="mt-3 p-2.5 rounded-lg bg-slate-950/80 border border-slate-800 text-[11px] font-mono space-y-1">
+                <div class="flex justify-between text-slate-300">
+                  <span class="text-slate-500">Docker Image:</span>
+                  <span class="text-slate-200">sandoval/gateway:v1.2 (118MB)</span>
+                </div>
+                <div class="flex justify-between text-slate-300">
+                  <span class="text-slate-500">Routing Filter:</span>
+                  <span class="text-indigo-400">TokenRelay + RateLimiter (100 req/s)</span>
+                </div>
+              </div>
+
+              <!-- Telemetry Grid -->
+              <div class="mt-3 pt-3 border-t border-slate-800 grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                  <span class="text-[10px] text-slate-400 block font-mono">CPU Usage</span>
+                  <span class="font-mono font-bold text-emerald-400">8%</span>
+                </div>
+                <div class="bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                  <span class="text-[10px] text-slate-400 block font-mono">RAM Alloc</span>
+                  <span class="font-mono font-bold text-sky-400">290 MB</span>
+                </div>
+                <div class="bg-slate-950/50 p-2 rounded-lg border border-slate-800/80">
+                  <span class="text-[10px] text-slate-400 block font-mono">Latencia P99</span>
+                  <span class="font-mono font-bold text-emerald-400">5 ms</span>
+                </div>
+              </div>
+
+              <!-- Pod selector trigger -->
+              <div class="mt-3 pt-1 flex justify-between items-center text-[11px]">
+                <span class="text-slate-500 font-mono">Port: 8080 / HTTP</span>
+                <button onclick="inspectPod('gateway')" class="text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 font-mono">
+                  Inspeccionar Pod & Logs &rarr;
+                </button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- 3. INTERACTIVE POD & CONTAINER INSPECTOR (TERMINAL & RESOURCE LIMITS) -->
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 shadow-sm">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 pb-4 mb-4 border-b border-slate-800">
+            <div class="flex items-center gap-2.5">
+              <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 border border-blue-500/30 flex items-center justify-center">
+                <i data-lucide="terminal" class="w-4 h-4"></i>
+              </div>
+              <div>
+                <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                  Visor de Pod Individual & Estado del Contenedor Docker
+                </h4>
+                <p class="text-[11px] text-slate-400 font-mono">k8s namespace: production-devagile • Istio Sidecar: Envoy Injected</p>
+              </div>
+            </div>
+
+            <!-- Pod Switcher Pills -->
+            <div class="flex items-center gap-1.5 bg-slate-950 p-1 rounded-lg border border-slate-800 font-mono text-xs overflow-x-auto max-w-full">
+              <button onclick="inspectPod('auth')" id="tab-pod-auth" class="px-2.5 py-1 rounded bg-blue-600/30 text-blue-300 border border-blue-500/40 text-[11px] whitespace-nowrap">auth-service-7f8d9b-x2k9l</button>
+              <button onclick="inspectPod('metrics')" id="tab-pod-metrics" class="px-2.5 py-1 rounded text-slate-400 hover:text-slate-200 text-[11px] whitespace-nowrap">metrics-service-5c4d1-m8p2q</button>
+              <button onclick="inspectPod('kanban')" id="tab-pod-kanban" class="px-2.5 py-1 rounded text-slate-400 hover:text-slate-200 text-[11px] whitespace-nowrap">kanban-api-9a3e7-z9v1x</button>
+              <button onclick="inspectPod('gateway')" id="tab-pod-gateway" class="px-2.5 py-1 rounded text-slate-400 hover:text-slate-200 text-[11px] whitespace-nowrap">gateway-4b11f-c3k8r</button>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 lg:grid-cols-3 gap-5">
+            <!-- Col 1: Container Docker Specs -->
+            <div class="space-y-3">
+              <div class="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono">Estado del Contenedor Docker:</div>
+              <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 text-xs font-mono space-y-2">
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Container ID:</span>
+                  <span id="pod-docker-id" class="text-slate-300 text-[11px]">docker://9a84f3e8b0...</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Status:</span>
+                  <span id="pod-docker-status" class="text-emerald-400 font-semibold flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> Up 14d (Running)
+                  </span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Restart Count:</span>
+                  <span class="text-slate-300">0 (Exit Code: 0)</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">OOMKilled:</span>
+                  <span class="text-emerald-400 font-semibold">false</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Service Mesh:</span>
+                  <span class="text-indigo-400">Istio Envoy mTLS Strict</span>
+                </div>
+                <div class="flex justify-between">
+                  <span class="text-slate-500">Ingress Route:</span>
+                  <span class="text-sky-400">nginx-ingress /api/v1/*</span>
+                </div>
+              </div>
+
+              <!-- Resource Requests vs Limits -->
+              <div class="text-xs font-bold text-slate-300 uppercase tracking-wider font-mono pt-1">Límites de Recursos K8s:</div>
+              <div class="p-3 bg-slate-950 rounded-lg border border-slate-800 text-xs font-mono space-y-2">
+                <div>
+                  <div class="flex justify-between text-[11px] mb-1">
+                    <span class="text-slate-400">CPU: <span id="pod-cpu-req">250m req</span> / <span id="pod-cpu-lim">1000m limit</span></span>
+                    <span class="text-emerald-400" id="pod-cpu-pct">25%</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div id="pod-cpu-bar" class="bg-emerald-500 h-1.5 rounded-full" style="width: 25%"></div>
+                  </div>
+                </div>
+                <div>
+                  <div class="flex justify-between text-[11px] mb-1">
+                    <span class="text-slate-400">RAM: <span id="pod-ram-req">512Mi req</span> / <span id="pod-ram-lim">1024Mi limit</span></span>
+                    <span class="text-sky-400" id="pod-ram-pct">40%</span>
+                  </div>
+                  <div class="w-full bg-slate-800 rounded-full h-1.5 overflow-hidden">
+                    <div id="pod-ram-bar" class="bg-sky-500 h-1.5 rounded-full" style="width: 40%"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Col 2 & 3: Live Simulated Container Logs -->
+            <div class="lg:col-span-2 flex flex-col">
+              <div class="flex items-center justify-between pb-2 text-xs">
+                <span class="font-bold text-slate-300 uppercase tracking-wider font-mono flex items-center gap-1.5">
+                  <i data-lucide="file-text" class="w-3.5 h-3.5 text-slate-400"></i> Logs en Vivo del Pod (kubectl logs -f)
+                </span>
+                <span class="text-[10px] font-mono text-emerald-400 bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30 flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Streaming stdout
+                </span>
+              </div>
+              <div class="flex-1 bg-slate-950 rounded-lg border border-slate-800 p-3 font-mono text-xs overflow-y-auto max-h-64 custom-scrollbar text-slate-300 space-y-1" id="pod-logs-console">
+                <div class="text-slate-500">[2024-05-18 10:42:01.104] INFO  [auth-service] org.springframework.boot.StartupInfoLogger: Starting AuthApplication v2.4 using Java 21 LTS</div>
+                <div class="text-slate-500">[2024-05-18 10:42:02.320] INFO  [auth-service] o.s.b.w.e.t.TomcatWebServer: Tomcat initialized with port 8081 (http)</div>
+                <div class="text-slate-400">[2024-05-18 10:42:03.011] INFO  [auth-service] c.s.security.JwtTokenProvider: RSA keys loaded successfully from Kubernetes Secret</div>
+                <div class="text-emerald-400">[2024-05-18 10:42:03.450] INFO  [auth-service] o.s.b.a.e.w.EndpointLinksResolver: Exposing 14 endpoint(s) beneath base path '/actuator'</div>
+                <div class="text-sky-300">[2024-05-18 10:42:04.002] INFO  [auth-service] c.s.auth.AuthController: Health check probe readiness/liveness: 200 OK</div>
+                <div class="text-slate-300">[2024-05-18 11:15:32.410] DEBUG [auth-service] c.s.security.JwtAuthenticationFilter: Validated Bearer JWT for user 'csandoval' (role: ADMIN) - 14ms</div>
+                <div class="text-slate-300">[2024-05-18 11:18:04.882] DEBUG [auth-service] c.s.security.JwtAuthenticationFilter: Token refresh issued: expires in 3600s</div>
+              </div>
+              <div class="mt-2 text-[10px] text-slate-500 flex justify-between font-mono">
+                <span>Filter: grep --level=INFO,DEBUG</span>
+                <span>Probes: Liveness /health/liveness (HTTP 200)</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 4. NETWORK TOPOLOGY DIAGRAM -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-5">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h4 class="text-sm font-bold text-white flex items-center gap-2">
+                <i data-lucide="network" class="w-4 h-4 text-emerald-400"></i>
+                Topología de Red & Flujo de Microservicios Contenerizados
+              </h4>
+              <p class="text-xs text-slate-400">Desacoplamiento estructural validado en la investigación empírica de Sandoval Vega.</p>
+            </div>
+            <span class="text-[10px] font-mono bg-slate-950 text-slate-400 px-2.5 py-1 rounded-lg border border-slate-800">
+              Protocol: HTTPS / TLS 1.3 &rarr; gRPC / HTTP/2 Interno
+            </span>
+          </div>
+
+          <!-- Flow Pipeline Cards -->
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-3">
+            
+            <!-- Step 1: Client Layer -->
+            <div class="p-3.5 bg-slate-950 rounded-xl border border-sky-500/30 relative flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] font-mono font-bold text-sky-400 uppercase bg-sky-950/60 px-2 py-0.5 rounded border border-sky-500/30">Capa 1 • SPA</span>
+                  <i data-lucide="monitor" class="w-4 h-4 text-sky-400"></i>
+                </div>
+                <h5 class="text-xs font-bold text-white">Cliente Frontend SPA</h5>
+                <p class="text-[11px] text-slate-400 mt-1 leading-snug">
+                  React 18 / Angular 17 servido estáticamente en CDN con compresión gzip. Consume contratos REST mediante Axios / HttpClient.
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] font-mono text-sky-400">
+                <span>Vite Build SPA</span>
+                <span>Port 443</span>
+              </div>
+            </div>
+
+            <!-- Step 2: Gateway & Ingress Layer -->
+            <div class="p-3.5 bg-slate-950 rounded-xl border border-indigo-500/30 relative flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] font-mono font-bold text-indigo-400 uppercase bg-indigo-950/60 px-2 py-0.5 rounded border border-indigo-500/30">Capa 2 • Edge</span>
+                  <i data-lucide="shield" class="w-4 h-4 text-indigo-400"></i>
+                </div>
+                <h5 class="text-xs font-bold text-white">Ingress & API Gateway</h5>
+                <p class="text-[11px] text-slate-400 mt-1 leading-snug">
+                  NGINX Ingress Controller enrutando a Spring Cloud Gateway (Netty). Rate limiting, terminación TLS y filtro de seguridad.
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] font-mono text-indigo-400">
+                <span>Traefik / Istio</span>
+                <span>Port 80/443</span>
+              </div>
+            </div>
+
+            <!-- Step 3: Spring Boot Microservices Pods -->
+            <div class="p-3.5 bg-slate-950 rounded-xl border border-emerald-500/30 relative flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] font-mono font-bold text-emerald-400 uppercase bg-emerald-950/60 px-2 py-0.5 rounded border border-emerald-500/30">Capa 3 • Backend</span>
+                  <i data-lucide="cpu" class="w-4 h-4 text-emerald-400"></i>
+                </div>
+                <h5 class="text-xs font-bold text-white">Pods Spring Boot (K8s)</h5>
+                <p class="text-[11px] text-slate-400 mt-1 leading-snug">
+                  Microservicios Stateless autoescalables con Horizontal Pod Autoscaler. Inyección de dependencias, DTOs y lógica de negocio.
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] font-mono text-emerald-400">
+                <span>Java 21 JVM</span>
+                <span>Port 8080-8083</span>
+              </div>
+            </div>
+
+            <!-- Step 4: Storage & Data Persistence -->
+            <div class="p-3.5 bg-slate-950 rounded-xl border border-purple-500/30 relative flex flex-col justify-between">
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-[10px] font-mono font-bold text-purple-400 uppercase bg-purple-950/60 px-2 py-0.5 rounded border border-purple-500/30">Capa 4 • Data</span>
+                  <i data-lucide="database" class="w-4 h-4 text-purple-400"></i>
+                </div>
+                <h5 class="text-xs font-bold text-white">Docker Persistencia</h5>
+                <p class="text-[11px] text-slate-400 mt-1 leading-snug">
+                  PostgreSQL 16 en StatefulSet persistente con volúmenes PVC NVMe y clúster Redis en memoria para caching sub-milimétrico.
+                </p>
+              </div>
+              <div class="mt-3 pt-2 border-t border-slate-800 flex items-center justify-between text-[10px] font-mono text-purple-400">
+                <span>Postgres & Redis</span>
+                <span>Port 5432/6379</span>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+      <!-- ============================================== -->
+      <!-- SECTION: DASHBOARD GENERAL (VISTA INTEGRACIÓN) -->
+      <!-- ============================================== -->
+      <div id="section-dashboard" class="space-y-6 hidden">
+        
+        <!-- Context Banner -->
+        <div class="relative overflow-hidden rounded-2xl bg-gradient-to-r from-slate-900 via-indigo-950/60 to-slate-900 border border-indigo-500/20 p-6 shadow-xl">
+          <div class="max-w-3xl">
+            <div class="inline-flex items-center gap-2 text-xs font-semibold text-emerald-400 bg-emerald-950/60 border border-emerald-500/30 px-2.5 py-1 rounded-md mb-2">
+              <i data-lucide="book-open" class="w-3.5 h-3.5"></i> Artículo de Investigación: Sandoval Vega (2024)
+            </div>
+            <h1 class="text-xl md:text-2xl font-black text-white tracking-tight leading-snug">
+              Impacto de las Metodologías Ágiles y Frameworks Modernos en Sistemas de Información
+            </h1>
+            <p class="text-xs md:text-sm text-slate-300 mt-2 leading-relaxed">
+              Demostración práctica de la sinergia entre la cadencia iterativa (Scrum/Kanban) y el desacoplamiento arquitectónico (Spring Boot REST Backend + React/Angular Frontend), maximizando la mantenibilidad, escalabilidad y respuesta ante cambios.
+            </p>
+          </div>
+        </div>
+
+        <!-- 4 Key Performance Indicators (KPIs) -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-400">Eficiencia del Equipo</span>
+              <div class="p-2 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20">
+                <i data-lucide="trending-up" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="mt-3 flex items-baseline gap-2">
+              <span class="text-2xl font-bold text-white">88.4%</span>
+              <span class="text-xs font-semibold text-emerald-400 flex items-center">
+                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i> +34% vs Cascada
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">Lead time reducido de 42 a 11 días hábiles.</p>
+          </div>
+
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-400">Mantenibilidad Código</span>
+              <div class="p-2 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <i data-lucide="check-circle" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="mt-3 flex items-baseline gap-2">
+              <span class="text-2xl font-bold text-white">A+ (92/100)</span>
+              <span class="text-xs font-semibold text-emerald-400 flex items-center">
+                <i data-lucide="arrow-up-right" class="w-3.5 h-3.5"></i> Deuda técnica &lt; 2h
+              </span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">Arquitectura hexagonal en Spring Boot + SPA limpia.</p>
+          </div>
+
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-400">Escalabilidad & Carga</span>
+              <div class="p-2 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20">
+                <i data-lucide="server" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="mt-3 flex items-baseline gap-2">
+              <span class="text-2xl font-bold text-white">12.5k req/s</span>
+              <span class="text-xs font-semibold text-sky-400 font-mono">99.98% SLA</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">Spring WebFlux reactivo + Kubernetes HPA elástico.</p>
+          </div>
+
+          <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-4.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-medium text-slate-400">Cobertura de Pruebas</span>
+              <div class="p-2 rounded-lg bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                <i data-lucide="shield-check" class="w-4 h-4"></i>
+              </div>
+            </div>
+            <div class="mt-3 flex items-baseline gap-2">
+              <span class="text-2xl font-bold text-white">87.2%</span>
+              <span class="text-xs font-semibold text-emerald-400 font-mono">JUnit 5 + Jest</span>
+            </div>
+            <p class="text-[11px] text-slate-400 mt-1">Automatización CI/CD con TDD y pipelines Docker.</p>
+          </div>
+        </div>
+
+        <!-- Comparative Chart -->
+        <div class="bg-slate-900/80 border border-slate-800 rounded-xl p-5 shadow-sm">
+          <div class="flex items-center justify-between mb-4">
+            <div>
+              <h3 class="text-sm font-bold text-white flex items-center gap-2">
+                <i data-lucide="bar-chart-3" class="w-4 h-4 text-emerald-400"></i>
+                Impacto Comparativo: Tradicional vs. Ágil + Frameworks Modernos
+              </h3>
+              <p class="text-xs text-slate-400">Métricas analizadas en la investigación empírica (Escala normalizada 0 - 100)</p>
+            </div>
+            <span class="text-[10px] font-mono bg-slate-800 text-slate-300 px-2 py-1 rounded border border-slate-700">Dataset Sandoval 2024</span>
+          </div>
+          <div class="h-64 w-full">
+            <canvas id="comparativeChart"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- SECTION: GESTIÓN ÁGIL (SCRUM & KANBAN)         -->
+      <!-- ============================================== -->
+      <div id="section-agile" class="space-y-6 hidden">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2 mb-1">
+              <span class="text-xs font-bold px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 border border-amber-500/30">Sprint 14</span>
+              <span class="text-xs text-slate-400 font-mono">Fechas: 12 Mayo - 26 Mayo (En curso)</span>
+            </div>
+            <h3 class="text-base font-bold text-white">Objetivo: Integración de Autenticación JWT y Modularización de Vistas</h3>
+          </div>
+          <div class="flex items-center gap-4">
+            <div class="w-48 text-right">
+              <div class="flex justify-between text-xs text-slate-300 mb-1">
+                <span class="text-slate-400">Progreso Sprint</span>
+                <span class="font-mono font-bold text-emerald-400" id="sprint-percent-text">75% (30/40 pts)</span>
+              </div>
+              <div class="w-full bg-slate-800 rounded-full h-2 overflow-hidden">
+                <div id="sprint-progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all duration-300" style="width: 75%"></div>
+              </div>
+            </div>
+            <button onclick="promptAddTask()" class="flex items-center gap-1.5 text-xs font-semibold px-3 py-2 rounded-lg bg-blue-600 hover:bg-blue-500 text-white shadow transition-all">
+              <i data-lucide="plus-circle" class="w-4 h-4"></i>
+              <span>Nueva Tarea</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Kanban Board -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          <!-- Col: To Do -->
+          <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-col">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                <span class="text-xs font-bold text-slate-200 uppercase">Por Hacer</span>
+              </div>
+              <span id="badge-todo" class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-400">1</span>
+            </div>
+            <div id="col-todo" class="kanban-col space-y-3 flex-1 custom-scrollbar">
+              <div id="card-1" class="bg-slate-800/90 border border-slate-700/60 rounded-lg p-3 shadow">
+                <div class="flex items-center justify-between gap-1 mb-2">
+                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30">Backend • Spring Boot</span>
+                  <span class="text-[10px] text-slate-400 font-mono">5 SP</span>
+                </div>
+                <h5 class="text-xs font-bold text-slate-100">Implementar Caching Redis para consultas pesadas</h5>
+                <p class="text-[11px] text-slate-400 mt-1">Configurar @EnableCaching y fallback en Spring Boot 3 para /api/analytics.</p>
+                <div class="mt-3 pt-2 border-t border-slate-700/50 flex justify-end">
+                  <button onclick="moveTask('card-1', 'col-progress')" class="text-[10px] text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1">
+                    Mover <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Col: In Progress -->
+          <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-col">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
+                <span class="text-xs font-bold text-slate-200 uppercase">En Progreso</span>
+              </div>
+              <span id="badge-progress" class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">1</span>
+            </div>
+            <div id="col-progress" class="kanban-col space-y-3 flex-1 custom-scrollbar">
+              <div id="card-2" class="bg-slate-800/90 border border-slate-700/60 rounded-lg p-3 shadow">
+                <div class="flex items-center justify-between gap-1 mb-2">
+                  <span id="tag-card-2" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 font-semibold border border-sky-500/30">Frontend • React SPA</span>
+                  <span class="text-[10px] text-slate-400 font-mono">8 SP</span>
+                </div>
+                <h5 class="text-xs font-bold text-slate-100">Implementar UI con Gráficas Reactivas Chart.js</h5>
+                <p class="text-[11px] text-slate-400 mt-1">Conectar DTOs estructurados desde el controlador Spring Boot hacia el cliente.</p>
+                <div class="mt-3 pt-2 border-t border-slate-700/50 flex justify-between">
+                  <button onclick="moveTask('card-2', 'col-todo')" class="text-[10px] text-slate-400 hover:text-slate-300 flex items-center gap-1">
+                    <i data-lucide="arrow-left" class="w-3 h-3"></i> Atrás
+                  </button>
+                  <button onclick="moveTask('card-2', 'col-review')" class="text-[10px] text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1">
+                    Review <i data-lucide="arrow-right" class="w-3 h-3"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Col: Review -->
+          <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-col">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-purple-400"></span>
+                <span class="text-xs font-bold text-slate-200 uppercase">En Review</span>
+              </div>
+              <span id="badge-review" class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-purple-500/20 text-purple-300 border border-purple-500/30">1</span>
+            </div>
+            <div id="col-review" class="kanban-col space-y-3 flex-1 custom-scrollbar">
+              <div id="card-3" class="bg-slate-800/90 border border-slate-700/60 rounded-lg p-3 shadow">
+                <div class="flex items-center justify-between gap-1 mb-2">
+                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold border border-emerald-500/30">Backend • Spring Security</span>
+                  <span class="text-[10px] text-slate-400 font-mono">5 SP</span>
+                </div>
+                <h5 class="text-xs font-bold text-slate-100">Filtro de Validación JWT con Token Expiry</h5>
+                <p class="text-[11px] text-slate-400 mt-1">PR #42: SecurityFilterChain moderno eliminando clases obsoletas.</p>
+                <div class="mt-3 pt-2 border-t border-slate-700/50 flex justify-between">
+                  <button onclick="moveTask('card-3', 'col-progress')" class="text-[10px] text-slate-400 hover:text-slate-300 flex items-center gap-1">
+                    <i data-lucide="arrow-left" class="w-3 h-3"></i> Progreso
+                  </button>
+                  <button onclick="moveTask('card-3', 'col-done')" class="text-[10px] text-emerald-400 hover:text-emerald-300 font-medium flex items-center gap-1">
+                    Aprobar <i data-lucide="check" class="w-3 h-3"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Col: Done -->
+          <div class="bg-slate-900/60 border border-slate-800/80 rounded-xl p-3 flex flex-col">
+            <div class="flex items-center justify-between pb-2 mb-3 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+                <span class="text-xs font-bold text-slate-200 uppercase">Completado</span>
+              </div>
+              <span id="badge-done" class="text-xs font-mono font-semibold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">2</span>
+            </div>
+            <div id="col-done" class="kanban-col space-y-3 flex-1 custom-scrollbar">
+              <div id="card-4" class="bg-slate-800/90 border border-slate-700/60 rounded-lg p-3 shadow opacity-85">
+                <div class="flex items-center justify-between gap-1 mb-2">
+                  <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-purple-500/20 text-purple-300 font-semibold border border-purple-500/30">DevOps • Docker</span>
+                  <span class="text-[10px] text-emerald-400 font-mono flex items-center"><i data-lucide="check" class="w-3 h-3"></i> Done</span>
+                </div>
+                <h5 class="text-xs font-bold text-slate-100 line-through text-slate-400">Pipeline GitHub Actions & Build Docker</h5>
+                <p class="text-[11px] text-slate-400 mt-1">Multi-stage Dockerfile con Alpine JRE y JUnit 5 test passing.</p>
+              </div>
+              <div id="card-5" class="bg-slate-800/90 border border-slate-700/60 rounded-lg p-3 shadow opacity-85">
+                <div class="flex items-center justify-between gap-1 mb-2">
+                  <span id="tag-card-5" class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-sky-500/20 text-sky-400 font-semibold border border-sky-500/30">Frontend • Interceptores</span>
+                  <span class="text-[10px] text-emerald-400 font-mono flex items-center"><i data-lucide="check" class="w-3 h-3"></i> Done</span>
+                </div>
+                <h5 class="text-xs font-bold text-slate-100 line-through text-slate-400">Bearer Token Header en Llamadas REST</h5>
+                <p class="text-[11px] text-slate-400 mt-1">Inyección de Authorization header para consumo seguro.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ============================================== -->
+      <!-- SECTION: MATRIZ DE COHERENCIA E IMPACTO       -->
+      <!-- ============================================== -->
+      <div id="section-matrix" class="space-y-6 hidden">
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl p-5 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+          <div>
+            <span class="px-2 py-0.5 rounded bg-indigo-500/20 text-indigo-400 font-mono text-xs border border-indigo-500/30">Documentación de Investigación</span>
+            <h3 class="text-base font-bold text-white mt-1">Matriz de Coherencia Metodológica & Resultados</h3>
+            <p class="text-xs text-slate-400">Correspondencia entre objetivos formulados por Christian Sandoval Vega y evidencias empíricas obtenidas.</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-900/90 border border-slate-800 rounded-xl overflow-hidden shadow-sm">
+          <div class="overflow-x-auto">
+            <table class="w-full text-left border-collapse text-xs">
+              <thead>
+                <tr class="bg-slate-950/80 border-b border-slate-800 text-slate-400 uppercase font-mono text-[10px] tracking-wider">
+                  <th class="p-3.5 pl-5">Obj. Específico</th>
+                  <th class="p-3.5">Metodología</th>
+                  <th class="p-3.5">Tecnología / Framework</th>
+                  <th class="p-3.5">Resultado</th>
+                  <th class="p-3.5 pr-5">Impacto Cuantitativo</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-800/80 text-slate-300">
+                <tr class="hover:bg-slate-800/40">
+                  <td class="p-3.5 pl-5 font-semibold text-white"><span class="text-blue-400 font-mono mr-1">OE-01:</span> Diagnosticar tasa de entrega continua y respuesta al cambio.</td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 font-mono text-[10px]">Scrum / Sprints</span></td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-200 font-mono text-[10px]">Jira + GitFlow</span></td>
+                  <td class="p-3.5">Eliminación de la fase monolítica de especificación rígida.</td>
+                  <td class="p-3.5 pr-5 font-mono text-emerald-400 font-bold bg-emerald-950/40">-72% Tiempo de Adaptación</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40">
+                  <td class="p-3.5 pl-5 font-semibold text-white"><span class="text-blue-400 font-mono mr-1">OE-02:</span> Diseñar e integrar arquitectura desacoplada y escalable.</td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 font-mono text-[10px]">Kanban WIP Limits</span></td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 font-mono text-[10px]">Docker + K8s + Spring Boot</span></td>
+                  <td class="p-3.5">Aislamiento de lógica de negocio y contenedores stateless elásticos.</td>
+                  <td class="p-3.5 pr-5 font-mono text-emerald-400 font-bold bg-emerald-950/40">99.98% SLA Disponibilidad</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40">
+                  <td class="p-3.5 pl-5 font-semibold text-white"><span class="text-blue-400 font-mono mr-1">OE-03:</span> Evaluar mantenibilidad y reducción de deuda técnica.</td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 font-mono text-[10px]">TDD + Pair Review</span></td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-slate-800 text-slate-200 font-mono text-[10px]">SonarQube + JUnit 5</span></td>
+                  <td class="p-3.5">Arquitectura hexagonal e inyección de dependencias modular.</td>
+                  <td class="p-3.5 pr-5 font-mono text-emerald-400 font-bold bg-emerald-950/40">Calificación A+ SonarQube</td>
+                </tr>
+                <tr class="hover:bg-slate-800/40">
+                  <td class="p-3.5 pl-5 font-semibold text-white"><span class="text-blue-400 font-mono mr-1">OE-04:</span> Medir rendimiento de renderizado cliente y latencia de red.</td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 font-mono text-[10px]">DoD Estricto</span></td>
+                  <td class="p-3.5"><span class="px-2 py-0.5 rounded bg-sky-500/10 text-sky-300 font-mono text-[10px]">Lighthouse / React & Angular</span></td>
+                  <td class="p-3.5">Carga por chunks asíncronos y virtual DOM optimizado.</td>
+                  <td class="p-3.5 pr-5 font-mono text-emerald-400 font-bold bg-emerald-950/40">FCP 0.64s (&lt; 1s meta)</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: MANIFIESTOS DOCKERFILE & K8S DEPLOYMENT YAML            -->
+  <!-- ============================================================== -->
+  <div id="manifest-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-3xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      
+      <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-blue-500/20 text-blue-400 flex items-center justify-center border border-blue-500/30">
+            <i data-lucide="file-code" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Manifiestos Cloud-Native (Docker & Kubernetes)</h3>
+            <p class="text-[11px] text-slate-400">Especificación multi-etapa Dockerfile y Deployment YAML</p>
+          </div>
+        </div>
+        <button onclick="toggleManifestModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <!-- Tab selector -->
+      <div class="px-5 pt-3 border-b border-slate-800 flex gap-2">
+        <button onclick="switchManifestTab('dockerfile')" id="tab-btn-dockerfile" class="px-3 py-1.5 rounded-t-lg bg-slate-800 text-white font-mono text-xs font-semibold border-t border-x border-slate-700">
+          Dockerfile (Multi-Stage Alpine)
+        </button>
+        <button onclick="switchManifestTab('k8s')" id="tab-btn-k8s" class="px-3 py-1.5 rounded-t-lg text-slate-400 hover:text-white font-mono text-xs font-semibold">
+          deployment-metrics-service.yaml
+        </button>
+      </div>
+
+      <div class="p-5 flex-1 overflow-y-auto custom-scrollbar font-mono text-xs">
+        <div id="manifest-dockerfile" class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-slate-300 leading-relaxed overflow-x-auto">
+          <pre><span class="text-slate-500"># Etapa 1: Compilación de la aplicación Spring Boot con Maven</span>
+<span class="text-purple-400">FROM</span> maven:3.9-eclipse-temurin-21-alpine <span class="text-purple-400">AS</span> builder
+<span class="text-blue-400">WORKDIR</span> /workspace
+<span class="text-blue-400">COPY</span> pom.xml .
+<span class="text-blue-400">RUN</span> mvn dependency:go-offline -B
+<span class="text-blue-400">COPY</span> src src
+<span class="text-blue-400">RUN</span> mvn clean package -DskipTests
+
+<span class="text-slate-500"># Etapa 2: Imagen de ejecución ligera con Alpine Linux</span>
+<span class="text-purple-400">FROM</span> eclipse-temurin:21-jre-alpine
+<span class="text-blue-400">LABEL</span> author="Christian Camilo Sandoval Vega"
+<span class="text-blue-400">RUN</span> addgroup -S appgroup && adduser -S appuser -G appgroup
+<span class="text-blue-400">WORKDIR</span> /app
+<span class="text-blue-400">COPY</span> --from=builder /workspace/target/*.jar app.jar
+<span class="text-blue-400">USER</span> appuser:appgroup
+<span class="text-blue-400">EXPOSE</span> 8080
+<span class="text-blue-400">ENV</span> JAVA_OPTS="-XX:+UseG1GC -XX:MaxRAMPercentage=75.0"
+<span class="text-blue-400">ENTRYPOINT</span> ["sh", "-c", "java $JAVA_OPTS -jar app.jar"]</pre>
+        </div>
+
+        <div id="manifest-k8s" class="hidden bg-slate-950 p-4 rounded-xl border border-slate-800 text-slate-300 leading-relaxed overflow-x-auto">
+          <pre><span class="text-purple-400">apiVersion:</span> apps/v1
+<span class="text-purple-400">kind:</span> Deployment
+<span class="text-purple-400">metadata:</span>
+  <span class="text-blue-400">name:</span> metrics-service
+  <span class="text-blue-400">namespace:</span> production-devagile
+<span class="text-purple-400">spec:</span>
+  <span class="text-blue-400">replicas:</span> 4
+  <span class="text-blue-400">selector:</span>
+    <span class="text-blue-400">matchLabels:</span>
+      <span class="text-emerald-400">app:</span> metrics-service
+  <span class="text-purple-400">template:</span>
+    <span class="text-blue-400">metadata:</span>
+      <span class="text-blue-400">labels:</span>
+        <span class="text-emerald-400">app:</span> metrics-service
+    <span class="text-purple-400">spec:</span>
+      <span class="text-blue-400">containers:</span>
+      - <span class="text-blue-400">name:</span> metrics-service
+        <span class="text-blue-400">image:</span> sandoval/metrics-service:v3.1
+        <span class="text-blue-400">ports:</span>
+        - <span class="text-blue-400">containerPort:</span> 8082
+        <span class="text-blue-400">resources:</span>
+          <span class="text-blue-400">requests:</span>
+            <span class="text-amber-400">cpu:</span> "250m"
+            <span class="text-amber-400">memory:</span> "512Mi"
+          <span class="text-blue-400">limits:</span>
+            <span class="text-amber-400">cpu:</span> "1000m"
+            <span class="text-amber-400">memory:</span> "1024Mi"
+        <span class="text-blue-400">livenessProbe:</span>
+          <span class="text-blue-400">httpGet:</span>
+            <span class="text-blue-400">path:</span> /actuator/health/liveness
+            <span class="text-blue-400">port:</span> 8082
+          <span class="text-blue-400">initialDelaySeconds:</span> 20</pre>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 border-t border-slate-800 bg-slate-950/60 flex items-center justify-between text-xs text-slate-400">
+        <span>GitOps: Sincronizado mediante ArgoCD</span>
+        <button onclick="toggleManifestModal()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 transition-colors">
+          Cerrar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ============================================================== -->
+  <!-- MODAL: SIMULADOR DE REST API                                   -->
+  <!-- ============================================================== -->
+  <div id="api-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-2xl w-full shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div class="px-5 py-4 border-b border-slate-800 flex items-center justify-between bg-slate-950/50">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30">
+            <i data-lucide="terminal" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Simulador de Transacción REST Spring Boot &harr; Cliente</h3>
+            <p class="text-[11px] text-slate-400">Prueba de respuesta HTTP y serialización JSON en tiempo real</p>
+          </div>
+        </div>
+        <button onclick="closeApiSimulatorModal()" class="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-slate-800">
+          <i data-lucide="x" class="w-5 h-5"></i>
+        </button>
+      </div>
+
+      <div class="p-5 space-y-4 overflow-y-auto custom-scrollbar flex-1">
+        <div>
+          <label class="text-xs font-semibold text-slate-300 block mb-1.5">Seleccionar Endpoint a Invocar:</label>
+          <div class="flex gap-2">
+            <select id="api-endpoint-select" class="flex-1 bg-slate-950 border border-slate-800 rounded-lg px-3 py-2 text-xs font-mono text-slate-200 focus:outline-none focus:border-emerald-500">
+              <option value="metrics">GET /api/v1/proyectos/metricas (Telemetry DTO)</option>
+              <option value="auth">POST /api/v1/auth/login (JWT Bearer Token)</option>
+              <option value="k8s">GET /api/v1/cluster/health (K8s Pods Status)</option>
+            </select>
+            <button onclick="executeApiCall()" id="btn-fire-api" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold text-xs rounded-lg flex items-center gap-2 shadow">
+              <i data-lucide="send" class="w-3.5 h-3.5"></i>
+              <span>Enviar Request</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-slate-950 p-3 rounded-lg border border-slate-800 font-mono text-xs">
+          <div class="flex justify-between items-center pb-2 border-b border-slate-800 text-[11px]">
+            <span class="text-slate-400">Headers: <span class="text-sky-400">Authorization: Bearer eyJhbGci...</span></span>
+            <span id="api-status-badge" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold">200 OK</span>
+          </div>
+          <pre id="api-json-output" class="pt-3 text-slate-300 overflow-x-auto max-h-56 custom-scrollbar leading-relaxed">{
+  "status": "UP",
+  "k8s_cluster": "k8s-prod-devagile",
+  "active_pods": 24,
+  "service": "metrics-service",
+  "response_time_ms": 14,
+  "timestamp": "2024-05-18T14:32:00Z"
+}</pre>
+        </div>
+      </div>
+
+      <div class="px-5 py-3 border-t border-slate-800 bg-slate-950/60 flex justify-end">
+        <button onclick="closeApiSimulatorModal()" class="px-4 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-200 text-xs font-medium">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC -->
+  <script>
+    // Initialize Lucide icons
+    lucide.createIcons();
+
+    // POD DATA FOR INSPECTOR
+    const POD_DETAILS = {
+      auth: {
+        id: "docker://9a84f3e8b0... (alpine-auth)",
+        status: "Up 14d (Running)",
+        cpuReq: "250m req",
+        cpuLim: "1000m limit",
+        cpuPct: "25%",
+        ramReq: "512Mi req",
+        ramLim: "1024Mi limit",
+        ramPct: "40%",
+        logs: [
+          "[2024-05-18 10:42:01] INFO  [auth-service] Starting AuthApplication v2.4 on Java 21 LTS",
+          "[2024-05-18 10:42:02] INFO  [auth-service] Tomcat initialized on port 8081 (HTTP/1.1)",
+          "[2024-05-18 10:42:03] INFO  [auth-service] RSA public keys loaded from Kubernetes Secret 'jwt-keys'",
+          "[2024-05-18 10:42:04] INFO  [auth-service] Probes liveness & readiness responding 200 OK",
+          "[2024-05-18 11:15:32] DEBUG [auth-service] Validated Bearer JWT for user 'csandoval' (role: ADMIN) - 14ms",
+          "[2024-05-18 11:22:15] DEBUG [auth-service] Issued refresh token: expires in 3600s"
+        ]
+      },
+      metrics: {
+        id: "docker://5c4d193ef2... (alpine-metrics)",
+        status: "Up 9d (Running)",
+        cpuReq: "300m req",
+        cpuLim: "1200m limit",
+        cpuPct: "35%",
+        ramReq: "600Mi req",
+        ramLim: "1200Mi limit",
+        ramPct: "55%",
+        logs: [
+          "[2024-05-18 12:00:01] INFO  [metrics-service] Netty webserver started on port 8082 (Reactive Non-Blocking)",
+          "[2024-05-18 12:00:02] INFO  [metrics-service] Subscribed to Redis PubSub 'k8s-telemetry-stream'",
+          "[2024-05-18 12:05:40] DEBUG [metrics-service] Dispatched Server-Sent Events (SSE) to 48 active clients",
+          "[2024-05-18 12:10:12] DEBUG [metrics-service] Aggregated P99 latency: 8ms across 12,500 req/s"
+        ]
+      },
+      kanban: {
+        id: "docker://7a11c88e99... (alpine-kanban)",
+        status: "Up 12d (Running)",
+        cpuReq: "200m req",
+        cpuLim: "800m limit",
+        cpuPct: "22%",
+        ramReq: "512Mi req",
+        ramLim: "1024Mi limit",
+        ramPct: "50%",
+        logs: [
+          "[2024-05-18 08:30:10] INFO  [kanban-service] HikariPool-1 - Starting... connection pool to Postgres OK",
+          "[2024-05-18 08:30:11] INFO  [kanban-service] Flyway database migrations applied: 14 migrations executed",
+          "[2024-05-18 09:14:22] DEBUG [kanban-service] Task moved: card-1 to 'col-progress' (WIP Check passed: 2/3)"
+        ]
+      },
+      gateway: {
+        id: "docker://4b11fc3k8r... (alpine-gateway)",
+        status: "Up 20d (Running)",
+        cpuReq: "150m req",
+        cpuLim: "500m limit",
+        cpuPct: "15%",
+        ramReq: "256Mi req",
+        ramLim: "512Mi limit",
+        ramPct: "30%",
+        logs: [
+          "[2024-05-18 06:00:01] INFO  [gateway] Route matched: /api/v1/auth/** -> lb://auth-service",
+          "[2024-05-18 06:00:02] INFO  [gateway] RateLimiter activated: 100 req/s per client IP address",
+          "[2024-05-18 07:11:45] DEBUG [gateway] TLS 1.3 handshake completed in 3ms"
+        ]
+      }
+    };
+
+    function inspectPod(podKey) {
+      const data = POD_DETAILS[podKey];
+      if (!data) return;
+
+      // Update active tabs
+      ['auth', 'metrics', 'kanban', 'gateway'].forEach(key => {
+        const btn = document.getElementById('tab-pod-' + key);
+        if (btn) {
+          if (key === podKey) {
+            btn.className = "px-2.5 py-1 rounded bg-blue-600/30 text-blue-300 border border-blue-500/40 text-[11px] whitespace-nowrap";
+          } else {
+            btn.className = "px-2.5 py-1 rounded text-slate-400 hover:text-slate-200 text-[11px] whitespace-nowrap";
+          }
+        }
+      });
+
+      // Update elements
+      document.getElementById('pod-docker-id').textContent = data.id;
+      document.getElementById('pod-docker-status').innerHTML = '<span class="w-1.5 h-1.5 rounded-full bg-emerald-400"></span> ' + data.status;
+      document.getElementById('pod-cpu-req').textContent = data.cpuReq;
+      document.getElementById('pod-cpu-lim').textContent = data.cpuLim;
+      document.getElementById('pod-cpu-pct').textContent = data.cpuPct;
+      document.getElementById('pod-cpu-bar').style.width = data.cpuPct;
+
+      document.getElementById('pod-ram-req').textContent = data.ramReq;
+      document.getElementById('pod-ram-lim').textContent = data.ramLim;
+      document.getElementById('pod-ram-pct').textContent = data.ramPct;
+      document.getElementById('pod-ram-bar').style.width = data.ramPct;
+
+      const consoleEl = document.getElementById('pod-logs-console');
+      consoleEl.innerHTML = data.logs.map(line => `<div>${line}</div>`).join('');
+    }
+
+    // SIMULATE HPA SCALING
+    let isScaled = false;
+    function simulateHpaScaling() {
+      isScaled = !isScaled;
+      const countEl = document.getElementById('pods-metrics-count');
+      const podsLive = document.getElementById('k8s-pods-live');
+      const podsTotal = document.getElementById('k8s-pods-total');
+      const sidePods = document.getElementById('sidebar-pods');
+      const hpaMainBtn = document.getElementById('hpa-main-text');
+      const cpuVal = document.getElementById('k8s-cpu-num');
+      const cpuBar = document.getElementById('k8s-cpu-bar');
+      const cpuBadge = document.getElementById('k8s-cpu-badge');
+      const sideCpu = document.getElementById('sidebar-cpu');
+
+      if (isScaled) {
+        countEl.textContent = "6 Pods (+2 HPA)";
+        countEl.className = "text-xs font-mono font-bold text-emerald-400 bg-emerald-950/80 px-2.5 py-1 rounded-md border border-emerald-500/40 animate-pulse";
+        podsLive.textContent = "26";
+        podsTotal.textContent = "26";
+        sidePods.textContent = "26 / 26";
+        hpaMainBtn.textContent = "Revertir Escalado HPA (6 → 4 Pods)";
+        cpuVal.textContent = "8.32";
+        cpuBar.style.width = "52%";
+        cpuBadge.textContent = "52%";
+        sideCpu.textContent = "8.32 / 16 Cores";
+      } else {
+        countEl.textContent = "4 Pods";
+        countEl.className = "text-xs font-mono font-bold text-blue-400 bg-blue-950/80 px-2.5 py-1 rounded-md border border-blue-500/40";
+        podsLive.textContent = "24";
+        podsTotal.textContent = "24";
+        sidePods.textContent = "24 / 24";
+        hpaMainBtn.textContent = "Simular Escalado HPA (Pods +2)";
+        cpuVal.textContent = "7.68";
+        cpuBar.style.width = "48%";
+        cpuBadge.textContent = "48%";
+        sideCpu.textContent = "7.68 / 16 Cores";
+      }
+    }
+
+    // MANIFEST MODAL LOGIC
+    function toggleManifestModal() {
+      const modal = document.getElementById('manifest-modal');
+      modal.classList.toggle('hidden');
+    }
+
+    function switchManifestTab(tab) {
+      const dockerfileEl = document.getElementById('manifest-dockerfile');
+      const k8sEl = document.getElementById('manifest-k8s');
+      const btnDocker = document.getElementById('tab-btn-dockerfile');
+      const btnK8s = document.getElementById('tab-btn-k8s');
+
+      if (tab === 'dockerfile') {
+        dockerfileEl.classList.remove('hidden');
+        k8sEl.classList.add('hidden');
+        btnDocker.className = "px-3 py-1.5 rounded-t-lg bg-slate-800 text-white font-mono text-xs font-semibold border-t border-x border-slate-700";
+        btnK8s.className = "px-3 py-1.5 rounded-t-lg text-slate-400 hover:text-white font-mono text-xs font-semibold";
+      } else {
+        dockerfileEl.classList.add('hidden');
+        k8sEl.classList.remove('hidden');
+        btnDocker.className = "px-3 py-1.5 rounded-t-lg text-slate-400 hover:text-white font-mono text-xs font-semibold";
+        btnK8s.className = "px-3 py-1.5 rounded-t-lg bg-slate-800 text-white font-mono text-xs font-semibold border-t border-x border-slate-700";
+      }
+    }
+
+    // API SIMULATOR MODAL
+    function openApiSimulatorModal() {
+      document.getElementById('api-modal').classList.remove('hidden');
+    }
+    function closeApiSimulatorModal() {
+      document.getElementById('api-modal').classList.add('hidden');
+    }
+
+    function executeApiCall() {
+      const select = document.getElementById('api-endpoint-select').value;
+      const jsonEl = document.getElementById('api-json-output');
+      const btn = document.getElementById('btn-fire-api');
+      btn.innerHTML = '<i data-lucide="loader-2" class="w-3.5 h-3.5 animate-spin"></i><span>Consultando...</span>';
+      lucide.createIcons();
+
+      setTimeout(() => {
+        btn.innerHTML = '<i data-lucide="send" class="w-3.5 h-3.5"></i><span>Enviar Request</span>';
+        lucide.createIcons();
+        if (select === 'metrics') {
+          jsonEl.textContent = JSON.stringify({
+            httpStatus: 200,
+            service: "metrics-service",
+            throughput: "12,500 req/s",
+            p99_latency_ms: 8.2,
+            sla: "99.98%",
+            k8s_hpa_replicas: isScaled ? 6 : 4,
+            timestamp: new Date().toISOString()
+          }, null, 2);
+        } else if (select === 'auth') {
+          jsonEl.textContent = JSON.stringify({
+            httpStatus: 200,
+            tokenType: "Bearer",
+            accessToken: "eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJjc2FuZG92YWwiLCJyb2xlcyI6WyJBRE1JTiJdfQ...",
+            expiresIn: 3600,
+            issuer: "devagile-auth-service"
+          }, null, 2);
+        } else {
+          jsonEl.textContent = JSON.stringify({
+            cluster: "k8s-prod-devagile",
+            controlPlane: "Healthy (etcd, apiserver, scheduler)",
+            nodesCount: 4,
+            runningPods: isScaled ? 26 : 24,
+            cniPlugin: "Calico v3.27",
+            containerRuntime: "containerd://1.7.13"
+          }, null, 2);
+        }
+      }, 350);
+    }
+
+    // NAVIGATION TABS
+    function navigateTab(tabKey) {
+      ['architecture', 'dashboard', 'agile', 'matrix'].forEach(id => {
+        const sec = document.getElementById('section-' + id);
+        const nav = document.getElementById('nav-' + id);
+        if (sec) sec.classList.add('hidden');
+        if (nav) nav.className = "nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all text-slate-300 hover:bg-slate-800 hover:text-white";
+      });
+
+      const activeSec = document.getElementById('section-' + tabKey);
+      const activeNav = document.getElementById('nav-' + tabKey);
+      if (activeSec) activeSec.classList.remove('hidden');
+      if (activeNav) activeNav.className = "nav-btn w-full flex items-center gap-3 px-3 py-2.5 rounded-lg text-xs font-medium transition-all bg-blue-600/20 text-blue-300 border border-blue-500/30";
+
+      const titleMap = {
+        architecture: "Arquitectura de Microservicios & Orquestación Docker / Kubernetes",
+        dashboard: "Dashboard General de Integración & Métricas de Investigación",
+        agile: "Módulo de Gestión Ágil: Scrum, Kanban & Velocity",
+        matrix: "Matriz de Coherencia e Impacto - Sandoval Vega (2024)"
+      };
+      if (titleMap[tabKey]) {
+        document.getElementById('view-title').innerHTML = `<i data-lucide="boxes" class="w-5 h-5 text-blue-400"></i> ${titleMap[tabKey]}`;
+        lucide.createIcons();
+      }
+
+      if (tabKey === 'dashboard') {
+        renderComparativeChart();
+      }
+    }
+
+    // FRONTEND SWITCHER
+    let activeFrontend = 'react';
+    function switchFrontend(fw) {
+      activeFrontend = fw;
+      const bReact = document.getElementById('btn-react');
+      const bAngular = document.getElementById('btn-angular');
+      if (fw === 'react') {
+        bReact.className = "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all bg-sky-500/20 text-sky-400 border border-sky-500/30 shadow-sm";
+        bAngular.className = "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all text-slate-400 hover:text-slate-200";
+      } else {
+        bAngular.className = "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all bg-red-500/20 text-red-400 border border-red-500/30 shadow-sm";
+        bReact.className = "flex items-center justify-center gap-1.5 py-1.5 px-2 rounded-md text-xs font-medium transition-all text-slate-400 hover:text-slate-200";
+      }
+    }
+
+    // THEME TOGGLE
+    function toggleTheme() {
+      const html = document.documentElement;
+      const isDark = html.classList.toggle('dark');
+      document.getElementById('theme-icon').setAttribute('data-lucide', isDark ? 'moon' : 'sun');
+      lucide.createIcons();
+    }
+
+    // KANBAN MOVE TASK
+    function moveTask(cardId, targetColId) {
+      const card = document.getElementById(cardId);
+      const targetCol = document.getElementById(targetColId);
+      if (card && targetCol) {
+        targetCol.appendChild(card);
+        updateBadges();
+      }
+    }
+
+    function updateBadges() {
+      ['todo', 'progress', 'review', 'done'].forEach(col => {
+        const c = document.getElementById('col-' + col);
+        const b = document.getElementById('badge-' + col);
+        if (c && b) b.textContent = c.children.length;
+      });
+    }
+
+    function promptAddTask() {
+      const title = prompt("Título de la nueva tarea ágil:");
+      if (!title) return;
+      const card = document.createElement('div');
+      card.className = "bg-slate-800/90 border border-slate-700/60 rounded-lg p-3 shadow";
+      card.innerHTML = `
+        <div class="flex items-center justify-between gap-1 mb-2">
+          <span class="text-[10px] font-mono px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-400 font-semibold border border-blue-500/30">Microservicio • K8s</span>
+          <span class="text-[10px] text-slate-400 font-mono">3 SP</span>
+        </div>
+        <h5 class="text-xs font-bold text-slate-100">${title}</h5>
+        <p class="text-[11px] text-slate-400 mt-1">Tarea añadida al Sprint 14.</p>
+      `;
+      document.getElementById('col-todo').appendChild(card);
+      updateBadges();
+    }
+
+    // CHART.JS FOR COMPARISON
+    let chartInstance = null;
+    function renderComparativeChart() {
+      const canvas = document.getElementById('comparativeChart');
+      if (!canvas || chartInstance) return;
+      chartInstance = new Chart(canvas, {
+        type: 'bar',
+        data: {
+          labels: ['Velocidad Despliegue', 'Mantenibilidad', 'Adaptabilidad', 'Tiempo Respuesta', 'Satisfacción'],
+          datasets: [
+            {
+              label: 'Modelo Tradicional (Cascada/Monolito)',
+              data: [32, 45, 28, 54, 58],
+              backgroundColor: 'rgba(100, 116, 139, 0.4)',
+              borderColor: 'rgba(100, 116, 139, 0.8)',
+              borderWidth: 1,
+              borderRadius: 4
+            },
+            {
+              label: 'Ágil + Spring Boot & Docker/K8s',
+              data: [88, 92, 94, 88, 93],
+              backgroundColor: 'rgba(16, 185, 129, 0.7)',
+              borderColor: 'rgba(16, 185, 129, 1)',
+              borderWidth: 1,
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { labels: { color: '#94a3b8', font: { family: 'Plus Jakarta Sans', size: 11 } } }
+          },
+          scales: {
+            y: { max: 100, grid: { color: 'rgba(51, 65, 85, 0.3)' }, ticks: { color: '#94a3b8' } },
+            x: { grid: { display: false }, ticks: { color: '#94a3b8' } }
+          }
+        }
+      });
+    }
+
+    // Initialize initial pod inspector
+    inspectPod('auth');
+  </script>
+</body>
+</html>
